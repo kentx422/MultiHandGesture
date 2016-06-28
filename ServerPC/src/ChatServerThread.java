@@ -43,6 +43,9 @@ public class ChatServerThread extends Thread {
 					//読み込み
 					message=new String(w,0,size,"UTF8");
 					
+					//様々な処理
+					message = someProcess(message);
+					
 					//全員にメッセージ送信
 					sendMessageAll(message);
 				} catch (IOException e) {
@@ -98,6 +101,19 @@ public class ChatServerThread extends Thread {
 			out.flush();
 		} catch (IOException e) {
 		}
+	}
+	
+	//様々な処理
+	public String someProcess(String message){
+		String result="";
+		//文字列を分解して配列に返還
+		String messageSplit[] = message.split(",");
+		
+		if(messageSplit[3].equals("ROLL")){
+			result="ImageAllShare,"+messageSplit[4];
+		}
+		
+		return result;
 	}
 }
 

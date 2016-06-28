@@ -218,8 +218,9 @@ public class MainActivity extends Activity implements SensorEventListener {
                     @Override
                     public void run() {
                         if (!error) {
-                            String[] strSplit = finalStrBuf.split(",");
                             receivedMessage.setText(finalStrBuf);
+                            //様々な処理
+                            someProcess(finalStrBuf);
 //                            connectState.setText("***"+macAddress+"<=>"+strSplit[0]+"***");
 //                            if(macAddress.equals(strSplit[0])){
 //                                device[0].setText("macAddress\t: "+strSplit[0]+"\nLastType\t: "+strSplit[1]+"\nDoneTime\t: "+strSplit[2]);
@@ -388,7 +389,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                         sendFile(ans, illumiAndTimeData);
                         illumiAndTimeData = "";
                         String serveTime = getNowDate();
-                        onServe(serveTime + "," + macAddress + "," + start + "," + ans);
+                        onServe(serveTime + "," + macAddress + "," + start + "," + ans +"," + imageID);
                     } else result.setText("OK");
                     num = 1;
                 }
@@ -477,6 +478,17 @@ public class MainActivity extends Activity implements SensorEventListener {
             nowTime += "" + calendar.get(Calendar.SECOND);
         }
         return nowTime;
+    }
+
+    public void someProcess(String strBuf){
+        String[] strSplit = strBuf.split(",");
+        if(strSplit[0].equals("ImageAllShare")){
+            imageID=Integer.parseInt(strSplit[1]);
+            testImage.setImageResource(imageList[imageID]);
+        }
+        else{
+            receivedMessage.setText("error");
+        }
     }
 
     public String judge(String sss) {
