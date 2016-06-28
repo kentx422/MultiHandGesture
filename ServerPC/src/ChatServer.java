@@ -1,6 +1,6 @@
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 //チャットサーバ
 public class ChatServer {
@@ -22,6 +22,7 @@ public class ChatServer {
 					//チャットサーバスレッド開始
 					thread=new ChatServerThread(socket);
 					thread.start();
+					System.out.println("接続開始");
 				} catch (IOException e) {
 				}
 			}

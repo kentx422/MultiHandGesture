@@ -42,7 +42,7 @@ public class ChatServerThread extends Thread {
 
 					//読み込み
 					message=new String(w,0,size,"UTF8");
-
+					
 					//全員にメッセージ送信
 					sendMessageAll(message);
 				} catch (IOException e) {

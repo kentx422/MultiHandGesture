@@ -9,8 +9,10 @@ import android.hardware.SensorManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 
@@ -18,7 +20,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -36,6 +41,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     private TextView illumi;
     private TextView result;
     private TextView timeStamp;
+    private TextView receivedMessage;
     private Button button;
     private boolean flag =true;
     private String illumiAndTimeData ="";
@@ -50,6 +56,24 @@ public class MainActivity extends Activity implements SensorEventListener {
     String str;
     int num=0;
 
+    private final static String BR=System.getProperty("line.separator");
+    //IPアドレスの指定
+    private final static String IP = "172.20.11.191";
+    private final static int PORT = 8081;
+
+    private TextView lblReceive;//受信ラベル
+    private EditText edtSend;   //送信エディットテキスト
+    private Button   btnSend;   //送信ボタン
+
+    private Socket socket; //ソケット
+    private InputStream in;     //入力ストリーム
+    private OutputStream out;    //出力ストリーム
+    private boolean      error;  //エラー
+
+    private final Handler handler=new Handler();//ハンドラ
+
+    private String messageForSending="";
+    private String messageForReciving="";
     String startTimeStamp="";
 
     double calibrationDevice=1.1;
@@ -105,6 +129,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         illumi =(TextView)findViewById(R.id.textViewA);
         result =(TextView)findViewById(R.id.textViewB);
         timeStamp =(TextView)findViewById(R.id.textViewC);
+        receivedMessage =(TextView)findViewById(R.id.textViewD);
         manager = (SensorManager)getSystemService(SENSOR_SERVICE);
 
 
@@ -120,10 +145,125 @@ public class MainActivity extends Activity implements SensorEventListener {
         //--
     }
     @Override
+    public void onStart() {
+        super.onStart();
+
+        //スレッドの生成
+        Thread thread=new Thread(){
+            public void run() {
+                try {
+                    connect(IP,PORT);
+                } catch (Exception e) {
+                }
+            }
+        };
+        thread.start();
+    }
+    //アクティビティの停止時に呼ばれる
+    @Override
     public void onStop() {
         super.onStop();
-
+        disconnect();
     }
+
+        //接続
+    private void connect(String ip,int port) {
+        int size;
+        String strBuf = "";
+        byte[] w=new byte[1024];
+        try {
+            //ソケット接続
+            //addText("接続中");
+            //connectState.setText("接続中");
+            socket=new Socket(ip,port);
+            in =socket.getInputStream();
+            out=socket.getOutputStream();
+            //addText("接続完了");
+            //connectState.setText("接続完了");
+
+            //受信ループ
+            /*if(socket.isConnected()){
+                connectState.setText("受信できそう");
+            }
+            else{
+                connectState.setText("受信できなさそう");
+            }*/
+            while (socket!=null && socket.isConnected()) {
+                //データの受信
+                size=in.read(w);
+                if (size<=0) continue;
+                strBuf =new String(w,0,size,"UTF-8");
+                //strRecive = str;
+                final String finalStrBuf = strBuf;
+                handler.post(new Runnable(){
+                    @Override
+                    public void run() {
+                        if (!error) {
+                            String[] strSplit = finalStrBuf.split(",");
+                            receivedMessage.setText(finalStrBuf);
+//                            connectState.setText("***"+macAddress+"<=>"+strSplit[0]+"***");
+//                            if(macAddress.equals(strSplit[0])){
+//                                device[0].setText("macAddress\t: "+strSplit[0]+"\nLastType\t: "+strSplit[1]+"\nDoneTime\t: "+strSplit[2]);
+//                            }
+//                            else{
+//                                device[1].setText("macAddress\t: "+strSplit[0]+"\nLastType\t: "+strSplit[1]+"\nDoneTime\t: "+strSplit[2]);
+//                            }
+
+                        } else {
+                            //addText("通信失敗しました");
+                            //connectState.setText("通信失敗しました2");
+                        }
+                    }});
+                //ラベルへの文字列追加
+                //connectState.setText("受信");
+                //receive.setText(""+str);
+            }
+        } catch (Exception e) {
+            //addText("通信失敗しました");
+            //connectState.setText("通信失敗しました\n"+e);
+        }
+    }
+
+    public void onServe(final String anser) {
+        //スレッッドの生成
+        Thread thread=new Thread(new Runnable(){public void run(){
+            error=false;
+            try {
+                //データの送信
+                if (socket!=null && socket.isConnected()) {
+                    //String write = serveTime +","+ macAddress +","+anser;
+                    byte[] w= anser.getBytes("UTF8");
+                    out.write(w);
+                    out.flush();
+                }
+            } catch (Exception e) {
+                error=true;
+            }
+            //ハンドラの生成
+            handler.post(new Runnable(){
+                @Override
+                public void run() {
+                    if (!error) {
+                    } else {
+                        //addText("通信失敗しました");
+                        //connectState.setText("通信失敗しました2");
+                    }
+                }});
+        }});
+        thread.start();
+    }
+
+    //切断
+    private void disconnect() {
+        try {
+            onServe("see u");
+            socket.close();
+            socket=null;
+        } catch (Exception e) {
+        }
+    }
+
+    //--------------接続プログラム終わり
 
     public void onResume(){
         super.onResume();
@@ -139,6 +279,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     class  clickListener implements View.OnClickListener{
         @Override
         public void onClick(View view){
+            //onServe(macAddress);
             if(view == button){
                 if(onoff == 0){
                     onoff = 1;
@@ -212,8 +353,10 @@ public class MainActivity extends Activity implements SensorEventListener {
                         result.setText(ans);
                         //timeStamp.setText("" + startTimeStamp);
                         timeStamp.setText(""+start);
-                        sendFile(ans,illumiAndTimeData);
+                        sendFile(ans, illumiAndTimeData);
                         illumiAndTimeData="";
+                        String serveTime = getNowDate();
+                        onServe(serveTime +","+ macAddress +","+start+","+ans);
                     } else result.setText("OK");
                     num = 1;
                 }
@@ -229,10 +372,10 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     private void sendFile(String fileName, String message){
-        try {
-            save2SD(fileName, message);
-        } catch (IOException e) {
-        }
+//        try {
+//            save2SD(fileName, message);
+//        } catch (IOException e) {
+//        }
     }
     private void save2SD(String fileName, String message) throws IOException {
         // ファイル保存先をSDカード内のパッケージ名フォルダ以下のsample.txtとします。
@@ -398,6 +541,9 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
         else if(macAddress.equals("ac:22:0b:5c:8c:0c")){
             calibrationDevice=3.20;
+        }
+        else if(macAddress.equals("02:00:00:00:00:00")){
+            calibrationDevice=4.57;
         }
         else{
             calibrationDevice=0.0;

@@ -33,9 +33,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="ON"
+        android:layout_marginBottom="25dp"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="80dp" />
+        android:layout_centerHorizontal="true" />
 
     <TextView
         android:id="@+id/textViewC"
@@ -46,5 +46,15 @@
         android:layout_below="@+id/textViewB"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="100dp"/>
+
+    <TextView
+        android:id="@+id/textViewD"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Received Messages"
+        android:textSize="20dp"
+        android:layout_above="@+id/textViewB"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="170dp" />
 
 </RelativeLayout>
