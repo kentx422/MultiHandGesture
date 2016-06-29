@@ -34,6 +34,6 @@ public class ChatServer {
 	//メイン
 	public static void main(String[] args) {
 		ChatServer server=new ChatServer();
-		server.start(8081);
+		server.start(8080);
 	}
 }

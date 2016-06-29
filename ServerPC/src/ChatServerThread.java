@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -15,6 +16,12 @@ import java.util.List;
 public class ChatServerThread extends Thread {
 	private static List<ChatServerThread> threads= new ArrayList<ChatServerThread>();//スレッド郡
 	private Socket socket;//ソケット
+	Device device[] = new Device[100];
+	private int deviceNum = 0;
+	private int  ImageSomeShareFlag=0;
+	private long ImageSomeShareTimeStamp=0;
+	private int  ImageSomeShareImageID=-1;
+	
 
 	// コンストラクタ
 	public ChatServerThread(Socket socket) {
@@ -42,12 +49,16 @@ public class ChatServerThread extends Thread {
 
 					//読み込み
 					message=new String(w,0,size,"UTF8");
+					System.out.println("Receive message: "+message);
 					
 					//様々な処理
 					message = someProcess(message);
 					
 					//全員にメッセージ送信
 					sendMessageAll(message);
+					
+					//デバイスの情報を表示
+					printDevice();
 				} catch (IOException e) {
 					socket.close();
 					threads.remove(this);
@@ -104,16 +115,115 @@ public class ChatServerThread extends Thread {
 	}
 	
 	//様々な処理
-	public String someProcess(String message){
+	public String someProcess(String str){
 		String result="";
-		//文字列を分解して配列に返還
-		String messageSplit[] = message.split(",");
 		
-		if(messageSplit[3].equals("ROLL")){
-			result="ImageAllShare,"+messageSplit[4];
+		//文字列を分解して配列に変換
+		String strSplit[] = str.split(",");
+		long receiveTime  = Long.parseLong(strSplit[0]);
+		String macAddress = strSplit[1];
+		long startTime    = Long.parseLong(strSplit[2]);
+		String gesture    = strSplit[3];
+		int imageID       = Integer.parseInt(strSplit[4]);
+		
+		//ImageSomeShareFlagが上がっているときに,任意の時間が過ぎていればflagを下ろす
+		if(ImageSomeShareFlag==1){
+			long diff = startTime-ImageSomeShareTimeStamp ;
+			System.out.println("----------------------");
+			System.out.println(ImageSomeShareFlag);
+			System.out.println(diff+"="+startTime+"-"+ImageSomeShareTimeStamp);
+			System.out.println("----------------------");
+			if (diff>(long)(1000000000)){
+				ImageSomeShareFlag=0;
+				ImageSomeShareImageID   = -1;
+				ImageSomeShareTimeStamp = 0;
+				System.out.println("*+*+*+*+*+*+*+*++*+*+*+*\n*+*+*+*+*+*+*+*++*+*+*+*\nImageSomeShareFlag OFF\n*+*+*+*+*+*+*+*++*+*+*+*\n*+*+*+*+*+*+*+*++*+*+*+*");
+			}
 		}
 		
+		//コンストラクタに追加
+		addDevice(macAddress, gesture, receiveTime, startTime, imageID);
+		
+		
+		if(gesture.equals("ROLL")){
+			result=rollProcess(imageID);
+		}else if(gesture.equals("SLASH")){
+			result=slashProcess(macAddress);
+		}
+		
+		
 		return result;
+	}
+	
+	//コンストラクタに追加
+	public void addDevice(String macAddress, String gesture, long receiveTime, long startTime, int imageID){
+		int i = 0, exist = 0;
+		while(i<deviceNum){
+			if(device[i].getMacAddress().equals(macAddress)){
+				device[i].addData(gesture, receiveTime, startTime, imageID);
+				exist++;
+				break;
+			}
+			i++;
+		}
+		if(exist==0){
+			device[deviceNum] = new Device(macAddress, gesture, receiveTime, startTime, imageID);
+			deviceNum++;
+		}
+		else if(exist > 1){
+			System.out.println("error: exist is over 2");
+		}
+	}
+	
+	public String rollProcess(int imageID){
+		String result="ImageAllShare,"+imageID;
+		return result;
+	}
+	public String slashProcess(String macAddress){
+		int deviceIDBuf = serchDevice(macAddress);
+		if(deviceIDBuf<0){
+			System.out.println("error: not search device");
+		}
+		int lastTimes = (device[deviceIDBuf].getTimes()-2);
+		
+		//SLASHが初のジェスチャであったとき
+		if(device[deviceIDBuf].getTimes()==1){
+			
+		}
+		//前回がHIDEのとき
+		else if(device[deviceIDBuf].getGesture()[lastTimes].equals("HIDE")){
+			ImageSomeShareFlag=1;
+			ImageSomeShareImageID   = device[deviceIDBuf].getImageID()[lastTimes];
+			ImageSomeShareTimeStamp = device[deviceIDBuf].getStartTime()[lastTimes];
+			System.out.println("ImageSomeShareFlag ON");
+			return "ImageSomeShareFlagON,"+ImageSomeShareImageID +","+ macAddress;
+		}
+		//誰かがHIDE&SLASHをしているとき
+		else if(ImageSomeShareFlag == 1){
+			System.out.println("きたー");
+			return "ImageSomeShare,"+ImageSomeShareImageID +","+ macAddress;
+		}
+		
+		return "";
+	}
+	
+	public int serchDevice(String macAddress){
+		for(int i=0;i<deviceNum;i++){
+			if(device[i].getMacAddress().equals(macAddress)){
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	public void printDevice(){
+		for(int i=0;i<deviceNum;i++){
+			System.out.println("+++++++++++++++++++++++++++++++");
+			System.out.println("mac		: "+device[i].getMacAddress());
+			System.out.println("gesture	: "+Arrays.asList(device[i].getGesture()));
+			System.out.println("+++++++++++++++++++++++++++++++");
+			
+		}
 	}
 }
 

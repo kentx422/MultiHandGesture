@@ -11,6 +11,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -73,7 +74,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     private final static String BR = System.getProperty("line.separator");
     //IPアドレスの指定
     private final static String IP = "172.20.11.191";
-    private final static int PORT = 8081;
+    private final static int PORT = 8080;
 
     private TextView lblReceive;//受信ラベル
     private EditText edtSend;   //送信エディットテキスト
@@ -388,14 +389,13 @@ public class MainActivity extends Activity implements SensorEventListener {
                         timeStamp.setText("" + start);
                         sendFile(ans, illumiAndTimeData);
                         illumiAndTimeData = "";
-                        String serveTime = getNowDate();
+                        String serveTime = getNowTime();
                         onServe(serveTime + "," + macAddress + "," + start + "," + ans +"," + imageID);
                     } else result.setText("OK");
                     num = 1;
                 }
                 check = 0;
             }
-
         }
     }
 
@@ -482,9 +482,19 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     public void someProcess(String strBuf){
         String[] strSplit = strBuf.split(",");
-        if(strSplit[0].equals("ImageAllShare")){
+        String mission = strSplit[0];
+        if(mission.equals("ImageAllShare")){
             imageID=Integer.parseInt(strSplit[1]);
             testImage.setImageResource(imageList[imageID]);
+        }
+        else if(mission.equals("ImageSomeShare")){
+            if(macAddress.equals(strSplit[2])){
+                imageID=Integer.parseInt(strSplit[1]);
+                testImage.setImageResource(imageList[imageID]);
+            }
+        }
+        else if(mission.equals("ImageSomeShareFlagON")||mission.equals("")){
+            System.out.println("no problem");
         }
         else{
             receivedMessage.setText("error");
