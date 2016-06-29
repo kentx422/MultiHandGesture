@@ -74,10 +74,11 @@ public class MainActivity extends Activity implements SensorEventListener {
     int step =1;
 
     int logThreshold = 10;
-    double illumiThreshold = 0.03;
+    double illumiThreshold = 0.025;
+    double waveThreshold = 0.05;
 
     private final static String BR = System.getProperty("line.separator");
-    //IPアドレスの指定
+    //IPアドレスの指定k
     private final static String IP = "172.20.11.191";
     private final static int PORT = 8080;
 
@@ -318,6 +319,10 @@ public class MainActivity extends Activity implements SensorEventListener {
                 if (onoff == 0) {
                     onoff = 1;
                     button.setText("OFF");
+                    step=1;
+                    illumiLog = new ArrayList<Integer>();
+                    timeDataLog = new ArrayList<Long>();
+                    illumiAndTimeData="";
                 } else {
                     onoff = 0;
                     button.setText("ON");
@@ -401,8 +406,9 @@ public class MainActivity extends Activity implements SensorEventListener {
                     illumiSum+=illumiLog.get((illumiLog.size() - 1) - i);
                 }
                 int illumiAve = (int)(illumiSum/logThreshold);
-                if(Math.abs(illumiAve-illumiLog.get(illumiLog.size()-1))>illumiAve*illumiThreshold*2){
+                if(Math.abs(illumiAve-illumiLog.get(illumiLog.size()-1))>illumiAve*illumiThreshold*2.5){
                     step=3;
+                    check=0;
                     start=timeDataLog.size()-2;
                     result.setText("Analyzing...");
                 }
@@ -417,13 +423,18 @@ public class MainActivity extends Activity implements SensorEventListener {
                     illumiSum+=illumiLog.get((illumiLog.size() - 1) - i);
                 }
                 int illumiAve = (int)(illumiSum/logThreshold);
-                if(Math.abs(illumiAve-illumiLog.get(illumiLog.size()-1-logThreshold))<illumiAve*illumiThreshold){
+                if(Math.abs(illumiAve-illumiLog.get(start))<illumiAve*illumiThreshold*2){
+                    check++;
+                }else{
+                    check=0;
+                }
+                if(check>logThreshold){
                     step=4;
-                    end=timeDataLog.size()-1-logThreshold;
+                    end=timeDataLog.size()-logThreshold;
                     //ジェスチャの判定
                     String gestureAnser = judgeGesture(illumiLog, timeDataLog, start, end);
                     result.setText(gestureAnser);
-                    timeStamp.setText("" + start);
+                    timeStamp.setText("" + timeDataLog.get(start));
                     sendFile(gestureAnser, illumiAndTimeData);
                     String serveTime = getNowTime();
                     onServe(serveTime + "," + macAddress + "," + start + "," + gestureAnser +"," + imageID);
@@ -456,6 +467,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                 }
                 if(check>logThreshold){
                     step=2;
+                    check=0;
                     //result.setText("Ready");
                 }
             }
@@ -519,10 +531,10 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     private void sendFile(String fileName, String message) {
-//        try {
-//            save2SD(fileName, message);
-//        } catch (IOException e) {
-//        }
+        try {
+            save2SD(fileName, message);
+        } catch (IOException e) {
+        }
     }
 
     private void save2SD(String fileName, String message) throws IOException {
@@ -617,7 +629,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     public String judgeGesture(ArrayList<Integer>illumiLog, ArrayList<Long>timeDataLog, int start, int end){
 //        int startTime = 0;
 //        int endTime   = (int)(end-start);
-        int max = (int)(illumiLog.get(start)+illumiLog.get(end)/2);
+        int max = (int)((illumiLog.get(start)+illumiLog.get(end))/2);
         int bottom = 0;
 
         for (int i = start; i <= end; i++) {;
@@ -627,27 +639,44 @@ public class MainActivity extends Activity implements SensorEventListener {
         int Ts = (int)(timeDataLog.get(bottom)-timeDataLog.get(start));
         int Te = (int)(timeDataLog.get(end)-timeDataLog.get(bottom));
 
-        double deepness = (max-bottom)/max;
-        double slope = (max-bottom)/(double)Ts-(max-bottom)/(double)Te;
-        double time  = Ts+Te;
-        double wave = 0;
+        int A= max - illumiLog.get(bottom);
+        double deepness = (double)A/(double)max;
+        double slope = (double)A/(double)Ts-(double)A/(double)Te;
+//        Log.d("slope",String.valueOf(slope));
+//        Log.d("A",String.valueOf(A));
+//        Log.d("Ts",String.valueOf(Ts));
+//        Log.d("Te",String.valueOf(Te));a
+        double time  = (double)(Ts+Te);
+        double wave = judgeWaveNum(illumiLog,start,end,A);
 
-        for (int i = start+(int)(logThreshold/2); i <= end-(int)(logThreshold/2); i++) {
-            if (illumiLog.get(i-(int)(logThreshold/2)) > illumiLog.get(i) && illumiLog.get(i) < illumiLog.get(i+(int)(logThreshold/2))){
-                wave++;
-            }
-            //if(lx[max]-lx[i]<15) WAVE++;
-        }
-        if (deepness >= 0.95) return "HIDE";
+//        for (int i = start+(int)(logThreshold/2); i <= end-(int)(logThreshold/2); i++) {
+//            //if (illumiLog.get(i-(int)(logThreshold/2)) > illumiLog.get(i) && illumiLog.get(i) < illumiLog.get(i+(int)(logThreshold/2))){
+//            if (illumiLog.get(i-1) > illumiLog.get(i) && illumiLog.get(i) < illumiLog.get(i+1)){
+//                wave++;
+//            }
+//            //if(lx[max]-lx[i]<15) WAVE++;
+//        }
+        if (deepness >= 0.85) return "HIDE";
         else if (wave >= 2.5) return "ROLL";
         else if (time >= 425) {
-            if (slope >= -0.15) return "UP";
+            if (slope >= 0.5) return "UP";
                 //if(St<0) gesture = 2;
             else return "DOWN";
         } else {
-            if (slope >= 117.4) return "UP";
+            if (slope >= 130) return "UP";
             else return "SLASH";
         }
+    }
+
+    public double judgeWaveNum(ArrayList<Integer> illumiLog, int start, int end, int A){
+        int waveFlag=0;
+        for(int i = start;i<end;i++){
+            int diff = illumiLog.get(i+1)-illumiLog.get(i);
+            if(Math.abs(diff) > A*waveThreshold){
+                waveFlag++;
+            }
+        }
+        return waveFlag/2.0;
     }
     public String judge(String sss) {
 
@@ -736,9 +765,9 @@ public class MainActivity extends Activity implements SensorEventListener {
         if (macAddress.equals("30:85:a9:2f:00:af")) {
             calibrationDevice = 1.0;
         } else if (macAddress.equals("ac:22:0b:5c:8c:0c")) {
-            calibrationDevice = 3.20;
+            calibrationDevice = 3.20*2/3.0;
         } else if (macAddress.equals("02:00:00:00:00:00")) {
-            calibrationDevice = 4.57;
+            calibrationDevice = 4.57*3/4.0;
         } else {
             calibrationDevice = 0.0;
         }
