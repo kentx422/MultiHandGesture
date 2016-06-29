@@ -33,6 +33,7 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -66,10 +67,14 @@ public class MainActivity extends Activity implements SensorEventListener {
     int first = 1;
     int check = 0;
     long time[] = new long[10];
-    long start = 0;
-    long end = 0;
+    int start = 0;
+    int end = 0;
     String str;
     int num = 0;
+    int step =1;
+
+    int logThreshold = 10;
+    double illumiThreshold = 0.03;
 
     private final static String BR = System.getProperty("line.separator");
     //IPアドレスの指定
@@ -93,6 +98,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     double calibrationDevice = 1.1;
 
+    ArrayList<Integer> illumiLog = new ArrayList<Integer>();
+    ArrayList<Long> timeDataLog  = new ArrayList<Long>();
 
 
     @Override
@@ -332,17 +339,21 @@ public class MainActivity extends Activity implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
         if (onoff == 1) {
 
-            float lx = 0;
+            int lx = 0;
             long timeMillis = 0;
 
             if (event.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
                 return;
             }
+
             int type = event.sensor.getType();
             if (type == Sensor.TYPE_LIGHT) {
-                lx = (float) (event.values[0] * calibrationDevice);
+                lx = (int) (event.values[0] * calibrationDevice);
                 timeMillis = System.currentTimeMillis();
-                illumi.setText("" + (int) lx);
+                illumiLog.add(lx);
+                timeDataLog.add(timeMillis);
+
+                illumi.setText("" + lx);
                 illumiAndTimeData += timeMillis + "," + lx + "\n";
             }
 //            try {
@@ -350,52 +361,155 @@ public class MainActivity extends Activity implements SensorEventListener {
 //            } catch (IOException e) {
 //
 //            }
-            for (int i = 0; i < 10; i++) {
-                if (i == 9) {
-                    BILL[i] = (int) lx;
-                    time[i] = timeMillis;
-                } else {
-                    BILL[i] = BILL[i + 1];
-                    time[i] = time[i + 1];
+
+            //step0.照度が落ちつくまで待機
+            //とりあえず、データ数が揃うまで待つ
+            if(illumiLog.size()<logThreshold){
+                if(!result.getText().equals("wait")) {
+                    result.setText("wait");
                 }
             }
 
-            if (first == 1) {
-                if (Math.abs(BILL[BILL.length - 2] - BILL[BILL.length - 1]) > 50) {
-                    if (num == 1) result.setText("wait...");
-                    sendFile("wait", illumiAndTimeData);
-                    illumiAndTimeData = "";
-                    first = 2;
-                    start = time[8];
-                    //startTimeStamp = (getNowTime());
-                    for (int i = 0; i < 10; i++) {
-                        if (i == 0)
-                            str = String.valueOf(BILL[i]) + "," + String.valueOf(time[i] - start);
-                        else
-                            str = str + "\n" + String.valueOf(BILL[i]) + "," + String.valueOf(time[i] - start);
-                    }
+            //step1. データが揃ったら、照度が安定するまでまつ
+            else if(step==1){
+//                if(!result.getText().equals("wait")) {
+//                    result.setText("wait");
+//                }
+                int illumiSum = 0;
+                for(int i=0;i<logThreshold;i++){
+                    illumiSum+=illumiLog.get((illumiLog.size() - 1) - i);
                 }
-            } else if (first == 2) {
-                end = System.currentTimeMillis();
-                str = str + "\n" + String.valueOf((int) event.values[0]) + "," + String.valueOf(end - start);
-                for (int i = 0; i < BILL.length - 1; i++)
-                    if (Math.abs(BILL[i] - BILL[i + 1]) < 10) check++;
-                if (check >= BILL.length - 1) {
-                    first = 1;
-                    if (num == 1) {
-                        String ans = judge(str);
-                        result.setText(ans);
-                        //timeStamp.setText("" + startTimeStamp);
-                        timeStamp.setText("" + start);
-                        sendFile(ans, illumiAndTimeData);
-                        illumiAndTimeData = "";
-                        String serveTime = getNowTime();
-                        onServe(serveTime + "," + macAddress + "," + start + "," + ans +"," + imageID);
-                    } else result.setText("OK");
-                    num = 1;
+                int illumiAve = (int)(illumiSum/logThreshold);
+                if(Math.abs(illumiAve-illumiLog.get(illumiLog.size()-1))<(int)(illumiAve*illumiThreshold)){
+                    check++;
+                }else{
+                    check=0;
                 }
-                check = 0;
+                if(check>logThreshold){
+                    step=2;
+                    result.setText("Ready");
+                }
             }
+
+            //step2. ジェスチャの開始を検知する
+            else if(step==2){
+//                if(!result.getText().equals("Ready")) {
+//                    result.setText("Ready");
+//                }
+                int illumiSum = 0;
+                for(int i=0;i<logThreshold;i++){
+                    illumiSum+=illumiLog.get((illumiLog.size() - 1) - i);
+                }
+                int illumiAve = (int)(illumiSum/logThreshold);
+                if(Math.abs(illumiAve-illumiLog.get(illumiLog.size()-1))>illumiAve*illumiThreshold*2){
+                    step=3;
+                    start=timeDataLog.size()-2;
+                    result.setText("Analyzing...");
+                }
+            }
+            //step3. ジェスチャの終了を検知する
+            else if(step==3){
+//                if(!result.getText().equals("Analyzing...")) {
+//                    result.setText("Analyzing...");
+//                }
+                int illumiSum = 0;
+                for(int i=0;i<logThreshold;i++){
+                    illumiSum+=illumiLog.get((illumiLog.size() - 1) - i);
+                }
+                int illumiAve = (int)(illumiSum/logThreshold);
+                if(Math.abs(illumiAve-illumiLog.get(illumiLog.size()-1-logThreshold))<illumiAve*illumiThreshold){
+                    step=4;
+                    end=timeDataLog.size()-1-logThreshold;
+                    //ジェスチャの判定
+                    String gestureAnser = judgeGesture(illumiLog, timeDataLog, start, end);
+                    result.setText(gestureAnser);
+                    timeStamp.setText("" + start);
+                    sendFile(gestureAnser, illumiAndTimeData);
+                    String serveTime = getNowTime();
+                    onServe(serveTime + "," + macAddress + "," + start + "," + gestureAnser +"," + imageID);
+                }
+            }
+            //step4. step2に戻るために諸々頑張る
+            else if(step==4){
+                illumiAndTimeData = "";
+                int[] illumiLogBuf = new int[logThreshold];
+                long[] timeDataLogBuf = new long[logThreshold];
+                for(int i=0;i<logThreshold;i++){
+                    illumiLogBuf[i]=illumiLog.get(illumiLog.size()-logThreshold+i);
+                    timeDataLogBuf[i]=timeDataLog.get(timeDataLog.size()-logThreshold+i);
+                }
+                illumiLog = new ArrayList<Integer>();
+                timeDataLog = new ArrayList<Long>();
+                for(int i=0;i<logThreshold;i++){
+                    illumiLog.add(illumiLogBuf[i]);
+                    timeDataLog.add(timeDataLogBuf[i]);
+                }
+                int illumiSum = 0;
+                for(int i=0;i<logThreshold;i++){
+                    illumiSum+=illumiLog.get((illumiLog.size() - 1) - i);
+                }
+                int illumiAve = (int)(illumiSum/logThreshold);
+                if(Math.abs(illumiAve-illumiLog.get(illumiLog.size()-1))<(int)(illumiAve*illumiThreshold)){
+                    check++;
+                }else{
+                    check=0;
+                }
+                if(check>logThreshold){
+                    step=2;
+                    //result.setText("Ready");
+                }
+            }
+
+
+
+
+//            for (int i = 0; i < 10; i++) {
+//                if (i == 9) {
+//                    BILL[i] = (int) lx;
+//                    time[i] = timeMillis;
+//                } else {
+//                    BILL[i] = BILL[i + 1];
+//                    time[i] = time[i + 1];
+//                }
+//            }
+//
+//            if (first == 1) {
+//                if (Math.abs(BILL[BILL.length - 2] - BILL[BILL.length - 1]) > 50) {
+//                    if (num == 1) result.setText("wait...");
+////                    sendFile("wait", illumiAndTimeData);
+////                    illumiAndTimeData = "";
+//                    first = 2;
+//                    start = time[8];
+//                    //startTimeStamp = (getNowTime());
+//                    for (int i = 0; i < 10; i++) {
+//                        if (i == 0)
+//                            str = String.valueOf(BILL[i]) + "," + String.valueOf(time[i] - start);
+//                        else
+//                            str = str + "\n" + String.valueOf(BILL[i]) + "," + String.valueOf(time[i] - start);
+//                    }
+//                }
+//            } else if (first == 2) {
+//                end = System.currentTimeMillis();
+//                str = str + "\n" + String.valueOf((int) event.values[0]) + "," + String.valueOf(end - start);
+//                for (int i = 0; i < BILL.length - 1; i++)
+//                    if (Math.abs(BILL[i] - BILL[i + 1]) < 10) check++;
+//                    else check = 0;
+//                if (check >= BILL.length - 1) {
+//                    first = 1;
+//                    if (num == 1) {
+//                        String ans = judge(str);
+//                        result.setText(ans);
+//                        //timeStamp.setText("" + startTimeStamp);
+//                        timeStamp.setText("" + start);
+//                        sendFile(ans, illumiAndTimeData);
+//                        illumiAndTimeData = "";
+//                        String serveTime = getNowTime();
+//                        onServe(serveTime + "," + macAddress + "," + start + "," + ans +"," + imageID);
+//                    } else result.setText("OK");
+//                    num = 1;
+//                }
+//                check = 0;
+//            }
         }
     }
 
@@ -500,7 +614,41 @@ public class MainActivity extends Activity implements SensorEventListener {
             receivedMessage.setText("error");
         }
     }
+    public String judgeGesture(ArrayList<Integer>illumiLog, ArrayList<Long>timeDataLog, int start, int end){
+//        int startTime = 0;
+//        int endTime   = (int)(end-start);
+        int max = (int)(illumiLog.get(start)+illumiLog.get(end)/2);
+        int bottom = 0;
 
+        for (int i = start; i <= end; i++) {;
+            if (i > 0 && illumiLog.get(i) < illumiLog.get(bottom)) bottom = i;
+        }
+
+        int Ts = (int)(timeDataLog.get(bottom)-timeDataLog.get(start));
+        int Te = (int)(timeDataLog.get(end)-timeDataLog.get(bottom));
+
+        double deepness = (max-bottom)/max;
+        double slope = (max-bottom)/(double)Ts-(max-bottom)/(double)Te;
+        double time  = Ts+Te;
+        double wave = 0;
+
+        for (int i = start+(int)(logThreshold/2); i <= end-(int)(logThreshold/2); i++) {
+            if (illumiLog.get(i-(int)(logThreshold/2)) > illumiLog.get(i) && illumiLog.get(i) < illumiLog.get(i+(int)(logThreshold/2))){
+                wave++;
+            }
+            //if(lx[max]-lx[i]<15) WAVE++;
+        }
+        if (deepness >= 0.95) return "HIDE";
+        else if (wave >= 2.5) return "ROLL";
+        else if (time >= 425) {
+            if (slope >= -0.15) return "UP";
+                //if(St<0) gesture = 2;
+            else return "DOWN";
+        } else {
+            if (slope >= 117.4) return "UP";
+            else return "SLASH";
+        }
+    }
     public String judge(String sss) {
 
         String anser = "";
