@@ -4,7 +4,12 @@ import java.net.Socket;
 
 //チャットサーバ
 public class ChatServer {
-
+	
+	static int  ImageSomeShareFlag=0;
+	static long ImageSomeShareTimeStamp=0;
+	static int  ImageSomeShareImageID=-1;
+	
+	
 	//開始
 	public void start(int port) {
 		ServerSocket     server;//サーバソケット
@@ -30,7 +35,7 @@ public class ChatServer {
 			System.err.println(e);
 		}
 	}
-
+	
 	//メイン
 	public static void main(String[] args) {
 		ChatServer server=new ChatServer();

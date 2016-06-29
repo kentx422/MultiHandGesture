@@ -18,10 +18,10 @@ public class ChatServerThread extends Thread {
 	private Socket socket;//ソケット
 	Device device[] = new Device[100];
 	private int deviceNum = 0;
-	private int  ImageSomeShareFlag=0;
-	private long ImageSomeShareTimeStamp=0;
-	private int  ImageSomeShareImageID=-1;
 	
+//	private int  ImageSomeShareFlag=0;
+//	private long ImageSomeShareTimeStamp=0;
+//	private int  ImageSomeShareImageID=-1;
 
 	// コンストラクタ
 	public ChatServerThread(Socket socket) {
@@ -31,6 +31,7 @@ public class ChatServerThread extends Thread {
 	}
 
 	//処理
+	@Override
 	public void run() {
 		InputStream in =null;
 		String message;
@@ -57,8 +58,9 @@ public class ChatServerThread extends Thread {
 					//全員にメッセージ送信
 					sendMessageAll(message);
 					
-					//デバイスの情報を表示
-					printDevice();
+//					//デバイスの情報を表示
+//					printDevice();
+					
 				} catch (IOException e) {
 					socket.close();
 					threads.remove(this);
@@ -127,16 +129,16 @@ public class ChatServerThread extends Thread {
 		int imageID       = Integer.parseInt(strSplit[4]);
 		
 		//ImageSomeShareFlagが上がっているときに,任意の時間が過ぎていればflagを下ろす
-		if(ImageSomeShareFlag==1){
-			long diff = startTime-ImageSomeShareTimeStamp ;
+		if(ChatServer.ImageSomeShareFlag==1){
+			long diff = startTime- ChatServer.ImageSomeShareTimeStamp ;
 			System.out.println("----------------------");
-			System.out.println(ImageSomeShareFlag);
-			System.out.println(diff+"="+startTime+"-"+ImageSomeShareTimeStamp);
+			System.out.println(ChatServer.ImageSomeShareFlag);
+			System.out.println(diff+"="+startTime+"-"+ChatServer.ImageSomeShareTimeStamp);
 			System.out.println("----------------------");
 			if (diff>(long)(1000000000)){
-				ImageSomeShareFlag=0;
-				ImageSomeShareImageID   = -1;
-				ImageSomeShareTimeStamp = 0;
+				ChatServer.ImageSomeShareFlag=0;
+				ChatServer.ImageSomeShareImageID   = -1;
+				ChatServer.ImageSomeShareTimeStamp = 0;
 				System.out.println("*+*+*+*+*+*+*+*++*+*+*+*\n*+*+*+*+*+*+*+*++*+*+*+*\nImageSomeShareFlag OFF\n*+*+*+*+*+*+*+*++*+*+*+*\n*+*+*+*+*+*+*+*++*+*+*+*");
 			}
 		}
@@ -192,16 +194,15 @@ public class ChatServerThread extends Thread {
 		}
 		//前回がHIDEのとき
 		else if(device[deviceIDBuf].getGesture()[lastTimes].equals("HIDE")){
-			ImageSomeShareFlag=1;
-			ImageSomeShareImageID   = device[deviceIDBuf].getImageID()[lastTimes];
-			ImageSomeShareTimeStamp = device[deviceIDBuf].getStartTime()[lastTimes];
+			ChatServer.ImageSomeShareFlag=1;
+			ChatServer.ImageSomeShareImageID   = device[deviceIDBuf].getImageID()[lastTimes];
+			ChatServer.ImageSomeShareTimeStamp = device[deviceIDBuf].getStartTime()[lastTimes];
 			System.out.println("ImageSomeShareFlag ON");
-			return "ImageSomeShareFlagON,"+ImageSomeShareImageID +","+ macAddress;
+			return "ImageSomeShareFlagON,"+ChatServer.ImageSomeShareImageID +","+ macAddress;
 		}
 		//誰かがHIDE&SLASHをしているとき
-		else if(ImageSomeShareFlag == 1){
-			System.out.println("きたー");
-			return "ImageSomeShare,"+ImageSomeShareImageID +","+ macAddress;
+		else if(ChatServer.ImageSomeShareFlag == 1){
+			return "ImageSomeShare,"+ChatServer.ImageSomeShareImageID +","+ macAddress;
 		}
 		
 		return "";
