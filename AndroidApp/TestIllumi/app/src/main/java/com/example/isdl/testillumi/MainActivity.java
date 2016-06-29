@@ -77,6 +77,8 @@ public class MainActivity extends Activity implements SensorEventListener {
     double illumiThreshold = 0.025;
     double waveThreshold = 0.05;
 
+    int lxBuf=-1;
+
     private final static String BR = System.getProperty("line.separator");
     //IPアドレスの指定k
     private final static String IP = "172.20.11.191";
@@ -320,6 +322,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                     onoff = 1;
                     button.setText("OFF");
                     step=1;
+                    lxBuf=-1;
                     illumiLog = new ArrayList<Integer>();
                     timeDataLog = new ArrayList<Long>();
                     illumiAndTimeData="";
@@ -354,6 +357,14 @@ public class MainActivity extends Activity implements SensorEventListener {
             int type = event.sensor.getType();
             if (type == Sensor.TYPE_LIGHT) {
                 lx = (int) (event.values[0] * calibrationDevice);
+                if(lxBuf==-1){
+                    lxBuf=lx;
+                }
+                else{
+                    int flag = (int)((lx+lxBuf)/2.0);
+                    lxBuf=lx;
+                    lx = flag;
+                }
                 timeMillis = System.currentTimeMillis();
                 illumiLog.add(lx);
                 timeDataLog.add(timeMillis);
@@ -468,6 +479,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                 if(check>logThreshold){
                     step=2;
                     check=0;
+                    lxBuf=-1;
                     //result.setText("Ready");
                 }
             }
@@ -657,15 +669,17 @@ public class MainActivity extends Activity implements SensorEventListener {
 //            //if(lx[max]-lx[i]<15) WAVE++;
 //        }
         if (deepness >= 0.85) return "HIDE";
-        else if (wave >= 2.5) return "ROLL";
-        else if (time >= 425) {
-            if (slope >= 0.5) return "UP";
+        else if (wave >= 4.0) return "ROLL";
+        else if (time >= 505) {
+            if (slope >= 0.45) return "UP";
                 //if(St<0) gesture = 2;
             else return "DOWN";
         } else {
             if (slope >= 130) return "UP";
             else return "SLASH";
+
         }
+
     }
 
     public double judgeWaveNum(ArrayList<Integer> illumiLog, int start, int end, int A){
@@ -676,6 +690,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                 waveFlag++;
             }
         }
+        Log.d("wave",String.valueOf(waveFlag/2.0));
         return waveFlag/2.0;
     }
     public String judge(String sss) {
