@@ -131,11 +131,7 @@ public class ChatServerThread extends Thread {
 		//ImageSomeShareFlagが上がっているときに,任意の時間が過ぎていればflagを下ろす
 		if(ChatServer.ImageSomeShareFlag==1){
 			long diff = startTime- ChatServer.ImageSomeShareTimeStamp ;
-			System.out.println("----------------------");
-			System.out.println(ChatServer.ImageSomeShareFlag);
-			System.out.println(diff+"="+startTime+"-"+ChatServer.ImageSomeShareTimeStamp);
-			System.out.println("----------------------");
-			if (diff>(long)(1000000000)){
+			if (diff>(long)(10000000)){
 				ChatServer.ImageSomeShareFlag=0;
 				ChatServer.ImageSomeShareImageID   = -1;
 				ChatServer.ImageSomeShareTimeStamp = 0;
