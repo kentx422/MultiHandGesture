@@ -40,9 +40,6 @@ import java.util.List;
 
 
 public class MainActivity extends Activity implements SensorEventListener {
-    //    private Button btn;
-//    private TextView result;
-//    private TextView data;
     private SensorManager manager;
 
     int onoff = 0;
@@ -88,7 +85,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     private final static String BR = System.getProperty("line.separator");
     //IPアドレスの指定k
-    private final static String IP = "172.20.11.191";
+    private final static String IP = "172.20.11.206";
     private final static int PORT = 8080;
 
     private TextView lblReceive;//受信ラベル
@@ -117,42 +114,6 @@ public class MainActivity extends Activity implements SensorEventListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //--
-//        LinearLayout ll = new LinearLayout(this);
-//        ll.setOrientation(LinearLayout.VERTICAL);
-//        setContentView(ll);
-
-//        result = new TextView(this);
-//        result.setLayoutParams(new LinearLayout.LayoutParams(
-//            kk    LinearLayout.LayoutParams.WRAP_CONTENT,
-//                LinearLayout.LayoutParams.WRAP_CONTENT));
-//        result.setGravity(Gravity.CENTER);
-//        result.setTextSize(100);
-//        //result.setText("HGI/LI");
-//
-//        data = new TextView(this);
-//        data.setLayoutParams(new LinearLayout.LayoutParams(
-//                LinearLayout.LayoutParams.WRAP_CONTENT,
-//                LinearLayout.LayoutParams.WRAP_CONTENT));
-//        data.setGravity(Gravity.CENTER);
-//        data.setTextSize(50);
-
-
-//        btn = new Button(this);
-//        btn.setLayoutParams(new LinearLayout.LayoutParams(
-//                LinearLayout.LayoutParams.WRAP_CONTENT,
-//                LinearLayout.LayoutParams.WRAP_CONTENT));
-//
-//        btn.setText("ON");
-//
-//        btn.setEnabled(true);
-//
-//        result.setText("wait...");
-//        data.setText("no data");
-//        ll.addView(btn);
-//        ll.addView(result);
-//        ll.addView(data);
-
         WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
         macAddress = wifiInfo.getMacAddress();
@@ -169,7 +130,6 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         manager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
-//        btn.setOnClickListener(new clickListener());
 
         button.setOnClickListener(new clickListener());
 
@@ -218,13 +178,6 @@ public class MainActivity extends Activity implements SensorEventListener {
             //addText("接続完了");
             //connectState.setText("接続完了");
 
-            //受信ループ
-            /*if(socket.isConnected()){
-                connectState.setText("受信できそう");
-            }
-            else{
-                connectState.setText("受信できなさそう");
-            }*/
             while (socket != null && socket.isConnected()) {
                 //データの受信
                 size = in.read(w);
@@ -239,13 +192,6 @@ public class MainActivity extends Activity implements SensorEventListener {
                             receivedMessage.setText(finalStrBuf);
                             //様々な処理
                             someProcess(finalStrBuf);
-//                            connectState.setText("***"+macAddress+"<=>"+strSplit[0]+"***");
-//                            if(macAddress.equals(strSplit[0])){
-//                                device[0].setText("macAddress\t: "+strSplit[0]+"\nLastType\t: "+strSplit[1]+"\nDoneTime\t: "+strSplit[2]);
-//                            }
-//                            else{
-//                                device[1].setText("macAddress\t: "+strSplit[0]+"\nLastType\t: "+strSplit[1]+"\nDoneTime\t: "+strSplit[2]);
-//                            }
 
                         } else {
                             //addText("通信失敗しました");
@@ -378,13 +324,9 @@ public class MainActivity extends Activity implements SensorEventListener {
                 timeDataLog.add(timeMillis);
 
                 illumi.setText("" + lx);
-                illumiAndTimeData += timeMillis + "," + lx + "\n";
+                //illumiAndTimeData += lx + "\n";
+                //illumiAndTimeData += timeMillis + "\t" + lx + "\n";
             }
-//            try {
-//                save2SD("anone");
-//            } catch (IOException e) {
-//
-//            }
 
             //step0.照度が落ちつくまで待機
             //とりあえず、データ数が揃うまで待つ
@@ -450,6 +392,9 @@ public class MainActivity extends Activity implements SensorEventListener {
                 if(check>logThreshold*1.2){
                     step=4;
                     end=timeDataLog.size()-logThreshold;
+                    Log.d("end",String.valueOf(end));
+                    end = judgeEnd();
+                    Log.d("tempend",String.valueOf(end));
                     //ジェスチャの判定
                     String gestureAnser = judgeGesture(illumiLog, timeDataLog, start, end);
                     result.setText(gestureAnser);
@@ -457,7 +402,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                     timeStamp.setText(testMessage);
                     sendFile(gestureAnser, illumiAndTimeData);
                     String serveTime = getNowTime();
-                    onServe(serveTime + "," + macAddress + "," + start + "," + gestureAnser +"," + imageID);
+                    onServe(serveTime + "," + macAddress + "," + start + "," + gestureAnser +"," + imageID+","+testMessage);
                 }
             }
             //step4. step2に戻るために諸々頑張る
@@ -492,57 +437,6 @@ public class MainActivity extends Activity implements SensorEventListener {
                     //result.setText("Ready");
                 }
             }
-
-
-
-
-//            for (int i = 0; i < 10; i++) {
-//                if (i == 9) {
-//                    BILL[i] = (int) lx;
-//                    time[i] = timeMillis;
-//                } else {
-//                    BILL[i] = BILL[i + 1];
-//                    time[i] = time[i + 1];
-//                }
-//            }
-//
-//            if (first == 1) {
-//                if (Math.abs(BILL[BILL.length - 2] - BILL[BILL.length - 1]) > 50) {
-//                    if (num == 1) result.setText("wait...");
-////                    sendFile("wait", illumiAndTimeData);
-////                    illumiAndTimeData = "";
-//                    first = 2;
-//                    start = time[8];
-//                    //startTimeStamp = (getNowTime());
-//                    for (int i = 0; i < 10; i++) {
-//                        if (i == 0)
-//                            str = String.valueOf(BILL[i]) + "," + String.valueOf(time[i] - start);
-//                        else
-//                            str = str + "\n" + String.valueOf(BILL[i]) + "," + String.valueOf(time[i] - start);
-//                    }
-//                }
-//            } else if (first == 2) {
-//                end = System.currentTimeMillis();
-//                str = str + "\n" + String.valueOf((int) event.values[0]) + "," + String.valueOf(end - start);
-//                for (int i = 0; i < BILL.length - 1; i++)
-//                    if (Math.abs(BILL[i] - BILL[i + 1]) < 10) check++;
-//                    else check = 0;
-//                if (check >= BILL.length - 1) {
-//                    first = 1;
-//                    if (num == 1) {
-//                        String ans = judge(str);
-//                        result.setText(ans);
-//                        //timeStamp.setText("" + startTimeStamp);
-//                        timeStamp.setText("" + start);
-//                        sendFile(ans, illumiAndTimeData);
-//                        illumiAndTimeData = "";
-//                        String serveTime = getNowTime();
-//                        onServe(serveTime + "," + macAddress + "," + start + "," + ans +"," + imageID);
-//                    } else result.setText("OK");
-//                    num = 1;
-//                }
-//                check = 0;
-//            }
         }
     }
 
@@ -650,6 +544,8 @@ public class MainActivity extends Activity implements SensorEventListener {
     public String judgeGesture(ArrayList<Integer>illumiLog, ArrayList<Long>timeDataLog, int start, int end){
 //        int startTime = 0;
 //        int endTime   = (int)(end-start);
+
+        //end特化型認識
         int max = (int)((illumiLog.get(start)+illumiLog.get(end))/2);
         int bottom = 0;
 
@@ -668,8 +564,10 @@ public class MainActivity extends Activity implements SensorEventListener {
 //        Log.d("Ts",String.valueOf(Ts));
 //        Log.d("Te",String.valueOf(Te));a
         double time  = (double)(Ts+Te);
-        double wave = judgeWaveNum(illumiLog,start,end,A);
+        //wave特化型認識
+        double wave = judgeWaveNum(illumiLog,start,end,max);
 
+        //なめらかにして波の検出効率を上げた→失敗
 //        for (int i = start+(int)(logThreshold/2); i <= end-(int)(logThreshold/2); i++) {
 //            //if (illumiLog.get(i-(int)(logThreshold/2)) > illumiLog.get(i) && illumiLog.get(i) < illumiLog.get(i+(int)(logThreshold/2))){
 //            if (illumiLog.get(i-1) > illumiLog.get(i) && illumiLog.get(i) < illumiLog.get(i+1)){
@@ -678,12 +576,14 @@ public class MainActivity extends Activity implements SensorEventListener {
 //            //if(lx[max]-lx[i]<15) WAVE++;
 //        }
 
-        Log.d("deepness", String.valueOf(deepness));
-        Log.d("wave", String.valueOf(wave));
-        Log.d("time", String.valueOf(time));
-        Log.d("slope", String.valueOf(slope));
+//        Log.d("deepness", String.valueOf(deepness));
+//        Log.d("wave", String.valueOf(wave));
+//        Log.d("time", String.valueOf(time));
+//        Log.d("slope", String.valueOf(slope));
         testMessage =String.valueOf(deepness)+","+String.valueOf(wave)+","+String.valueOf(time)+","+String.valueOf(slope);
 
+
+        //全ジェスチャ
         if (deepness >= dps) return "HIDE";
         else if (wave >= wav) return "ROLL";
         else if (time >= tse) {
@@ -695,19 +595,72 @@ public class MainActivity extends Activity implements SensorEventListener {
             else return "SLASH";
         }
 
+        //startからendまでをarraylistから抽出してillumiandtimeData
+
+
+        //HIDEとSLASHのジェスチャ
+//        if (deepness >= dps) return "HIDE";
+//        else return "SLASH";
 
     }
 
-    public double judgeWaveNum(ArrayList<Integer> illumiLog, int start, int end, int A){
+    //波特化型認識
+    public double judgeWaveNum(ArrayList<Integer> illumiLog, int start, int end, int max){
         int waveFlag=0;
-        for(int i = start;i<end;i++){
+//        for(int i = start;i<end;i++){
+//            int diff = illumiLog.get(i+1)-illumiLog.get(i);
+//            if(Math.abs(diff) > A*waveThreshold){
+//                waveFlag++;
+//            }
+//        }
+
+        int lastDiff=0;
+        ArrayList<Integer> illumiMountainLog =  new ArrayList<Integer>();
+        for (int i=start;i<=end;i++){
+            illumiAndTimeData += i+"\t"+illumiLog.get(i)+"\n";
             int diff = illumiLog.get(i+1)-illumiLog.get(i);
-            if(Math.abs(diff) > A*waveThreshold){
+            if(Math.abs(diff)==0 || diff*lastDiff<0){
+                illumiMountainLog.add(illumiLog.get(i));
+//                Log.d("illumi", String.valueOf(illumiLog.get(i)));
+//                Log.d("time",String.valueOf(i));
+            }
+            lastDiff=diff;
+        }
+
+        if(illumiMountainLog.size()==0){
+            return 0;
+        }
+
+        int lastIllumiMountain = illumiMountainLog.get(0);
+        for(int i=1; i<illumiMountainLog.size();i++){
+            int illumiDiff = illumiMountainLog.get(i)-lastIllumiMountain;
+//            Log.d("mountain",String.valueOf(illumiMountainLog.get(i)));
+            if(Math.abs(illumiDiff)>(double)max*0.05){
                 waveFlag++;
+//                Log.d("add",String.valueOf(illumiDiff) );
+            }
+            lastIllumiMountain=illumiMountainLog.get(i);
+        }
+        return ((waveFlag+1)/2);
+    }
+
+    //end特化型認識
+    public int judgeEnd(){
+        int endPoint = end;
+        int startIllumi = illumiLog.get(start);
+        for(int i=endPoint;i>0;i--){
+            int diff = Math.abs(startIllumi-illumiLog.get(i));
+            Log.d("i",String.valueOf(i));
+            Log.d("diff", String.valueOf(diff));
+            if(diff>(double)startIllumi*0.05){
+                endPoint = i+1;
+                return endPoint;
             }
         }
-        return waveFlag/2.0;
+        return endPoint;
     }
+
+    //山下のジェスチャ認識
     public String judge(String sss) {
 
         String anser = "";
@@ -799,7 +752,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             waveThreshold = 0.06;
 
             dps = 0.85;
-            wav = 6.0;
+            wav = 3.0;
             tse = 700;
             slp = 0.45;
 
