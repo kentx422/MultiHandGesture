@@ -55,6 +55,7 @@ public class ChatServerThread extends Thread {
 					//様々な処理
 					message = someProcess(message);
 					
+					System.out.println("Send message"+message);
 					//全員にメッセージ送信
 					sendMessageAll(message);
 					

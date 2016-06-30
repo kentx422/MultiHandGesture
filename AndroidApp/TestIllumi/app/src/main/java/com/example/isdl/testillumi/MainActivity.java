@@ -73,9 +73,16 @@ public class MainActivity extends Activity implements SensorEventListener {
     int num = 0;
     int step =1;
 
-    int logThreshold = 10;
-    double illumiThreshold = 0.025;
-    double waveThreshold = 0.05;
+    double dps;
+    double wav;
+    int tse ;
+    double slp;
+
+    int logThreshold;
+    double illumiThreshold;
+    double waveThreshold;
+
+    String testMessage="";
 
     int lxBuf=-1;
 
@@ -117,7 +124,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 //        result = new TextView(this);
 //        result.setLayoutParams(new LinearLayout.LayoutParams(
-//                LinearLayout.LayoutParams.WRAP_CONTENT,
+//            kk    LinearLayout.LayoutParams.WRAP_CONTENT,
 //                LinearLayout.LayoutParams.WRAP_CONTENT));
 //        result.setGravity(Gravity.CENTER);
 //        result.setTextSize(100);
@@ -339,6 +346,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         public void onClick(View view) {
 
             testImage.setImageResource(imageList[(++imageID)%4]);
+            if(imageID==4)imageID=0;
         }
     }
 
@@ -434,18 +442,19 @@ public class MainActivity extends Activity implements SensorEventListener {
                     illumiSum+=illumiLog.get((illumiLog.size() - 1) - i);
                 }
                 int illumiAve = (int)(illumiSum/logThreshold);
-                if(Math.abs(illumiAve-illumiLog.get(start))<illumiAve*illumiThreshold*2){
+                if(Math.abs(illumiAve-illumiLog.get(start))<illumiAve*illumiThreshold*4){
                     check++;
                 }else{
                     check=0;
                 }
-                if(check>logThreshold){
+                if(check>logThreshold*1.2){
                     step=4;
                     end=timeDataLog.size()-logThreshold;
                     //ジェスチャの判定
                     String gestureAnser = judgeGesture(illumiLog, timeDataLog, start, end);
                     result.setText(gestureAnser);
-                    timeStamp.setText("" + timeDataLog.get(start));
+                    //timeStamp.setText("" + timeDataLog.get(start));
+                    timeStamp.setText(testMessage);
                     sendFile(gestureAnser, illumiAndTimeData);
                     String serveTime = getNowTime();
                     onServe(serveTime + "," + macAddress + "," + start + "," + gestureAnser +"," + imageID);
@@ -668,17 +677,24 @@ public class MainActivity extends Activity implements SensorEventListener {
 //            }
 //            //if(lx[max]-lx[i]<15) WAVE++;
 //        }
-        if (deepness >= 0.85) return "HIDE";
-        else if (wave >= 4.0) return "ROLL";
-        else if (time >= 505) {
-            if (slope >= 0.45) return "UP";
+
+        Log.d("deepness", String.valueOf(deepness));
+        Log.d("wave", String.valueOf(wave));
+        Log.d("time", String.valueOf(time));
+        Log.d("slope", String.valueOf(slope));
+        testMessage =String.valueOf(deepness)+","+String.valueOf(wave)+","+String.valueOf(time)+","+String.valueOf(slope);
+
+        if (deepness >= dps) return "HIDE";
+        else if (wave >= wav) return "ROLL";
+        else if (time >= tse) {
+            if (slope >= slp) return "UP";
                 //if(St<0) gesture = 2;
             else return "DOWN";
         } else {
             if (slope >= 130) return "UP";
             else return "SLASH";
-
         }
+
 
     }
 
@@ -690,7 +706,6 @@ public class MainActivity extends Activity implements SensorEventListener {
                 waveFlag++;
             }
         }
-        Log.d("wave",String.valueOf(waveFlag/2.0));
         return waveFlag/2.0;
     }
     public String judge(String sss) {
@@ -779,10 +794,37 @@ public class MainActivity extends Activity implements SensorEventListener {
     public void setCalibrationByMacAdress() {
         if (macAddress.equals("30:85:a9:2f:00:af")) {
             calibrationDevice = 1.0;
+            logThreshold = 10;
+            illumiThreshold = 0.025;
+            waveThreshold = 0.06;
+
+            dps = 0.85;
+            wav = 6.0;
+            tse = 700;
+            slp = 0.45;
+
         } else if (macAddress.equals("ac:22:0b:5c:8c:0c")) {
-            calibrationDevice = 3.20*2/3.0;
+            calibrationDevice = 4.27;
+            logThreshold = 10;
+            illumiThreshold = 0.025;
+            waveThreshold = 0.03;
+
+            dps = 0.85;
+            wav = 3.0;
+            tse = 900;
+            slp = 0.45;
+
         } else if (macAddress.equals("02:00:00:00:00:00")) {
-            calibrationDevice = 4.57*3/4.0;
+            calibrationDevice = 3.42;
+            logThreshold = 10;
+            illumiThreshold = 0.025;
+            waveThreshold = 0.03;
+
+            dps = 0.85;
+            wav = 3.0;
+            tse = 900;
+            slp = 0.45;
+
         } else {
             calibrationDevice = 0.0;
         }
