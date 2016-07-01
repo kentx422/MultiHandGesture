@@ -774,6 +774,9 @@ public class MainActivity extends Activity implements SensorEventListener {
             calibrationBperDevice = 0.239641099;
             calibrationCperDevice = 160.320846;
 
+            logThreshold = 10;
+            illumiThreshold = 0.025;
+
             dps = 0.85;
             wav = 2.0;
             tse = 700;
@@ -783,6 +786,9 @@ public class MainActivity extends Activity implements SensorEventListener {
             calibrationAperDevice = 0.005032123;
             calibrationBperDevice = 0.454065939;
             calibrationCperDevice = 160.43202;
+
+            logThreshold = 10;
+            illumiThreshold = 0.025;
 
             dps = 0.85;
             wav = 2.0;
