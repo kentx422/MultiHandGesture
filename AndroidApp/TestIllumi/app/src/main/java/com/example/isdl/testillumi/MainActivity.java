@@ -82,7 +82,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     String testMessage="";
 
-    int lxBuf=-1;
+    double lxBuf=-1;
 
     private final static String BR = System.getProperty("line.separator");
     //IPアドレスの指定k
@@ -109,7 +109,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     double calibrationBperDevice = 1.0;
     double calibrationCperDevice = 0.0;
 
-    ArrayList<Integer> illumiLog = new ArrayList<Integer>();
+    ArrayList<Double> illumiLog = new ArrayList<Double>();
     ArrayList<Long> timeDataLog  = new ArrayList<Long>();
 
 
@@ -280,7 +280,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                     button.setText("OFF");
                     step=1;
                     lxBuf=-1;
-                    illumiLog = new ArrayList<Integer>();
+                    illumiLog = new ArrayList<Double>();
                     timeDataLog = new ArrayList<Long>();
                     illumiAndTimeData="";
                 } else {
@@ -306,9 +306,9 @@ public class MainActivity extends Activity implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
         if (onoff == 1) {
 
-            int lx = 0;
+            double lx = 0;
             long timeMillis = 0;
-            int calibrationlx = 0;
+            double calibrationlx = 0;
 
             if (event.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
                 return;
@@ -318,14 +318,14 @@ public class MainActivity extends Activity implements SensorEventListener {
             if (type == Sensor.TYPE_LIGHT) {
                 double rowlx = (event.values[0]);
                 //キャリブレーション
-                calibrationlx = (int)(calibrationAperDevice*rowlx*rowlx+calibrationBperDevice*rowlx+calibrationCperDevice);
+                calibrationlx = (calibrationAperDevice*rowlx*rowlx+calibrationBperDevice*rowlx+calibrationCperDevice);
                 lx = calibrationlx;
                 //前後で割ってスムージング
                 if(lxBuf==-1){
                     lxBuf=lx;
                 }
                 else{
-                    int flag = (int)((lx+lxBuf)/2.0);
+                    double flag = ((lx+lxBuf)/2.0);
                     lxBuf=lx;
                     lx = flag;
                 }
@@ -351,12 +351,12 @@ public class MainActivity extends Activity implements SensorEventListener {
 //                if(!result.getText().equals("wait")) {
 //                    result.setText("wait");
 //                }
-                int illumiSum = 0;
+                double illumiSum = 0;
                 for(int i=0;i<logThreshold;i++){
                     illumiSum+=illumiLog.get((illumiLog.size() - 1) - i);
                 }
-                int illumiAve = (int)(illumiSum/logThreshold);
-                if(Math.abs(illumiAve-illumiLog.get(illumiLog.size()-1))<(int)(illumiAve*illumiThreshold)){
+                double illumiAve = (illumiSum/logThreshold);
+                if(Math.abs(illumiAve-illumiLog.get(illumiLog.size()-1))<(illumiAve*illumiThreshold)){
                     check++;
                 }else{
                     check=0;
@@ -372,11 +372,11 @@ public class MainActivity extends Activity implements SensorEventListener {
 //                if(!result.getText().equals("Ready")) {
 //                    result.setText("Ready");
 //                }
-                int illumiSum = 0;
+                double illumiSum = 0;
                 for(int i=0;i<logThreshold;i++){
                     illumiSum+=illumiLog.get((illumiLog.size() - 1) - i);
                 }
-                int illumiAve = (int)(illumiSum/logThreshold);
+                double illumiAve = (illumiSum/logThreshold);
                 if(Math.abs(illumiAve-illumiLog.get(illumiLog.size()-1))>illumiAve*illumiThreshold*2.5){
                     step=3;
                     check=0;
@@ -389,11 +389,11 @@ public class MainActivity extends Activity implements SensorEventListener {
 //                if(!result.getText().equals("Analyzing...")) {
 //                    result.setText("Analyzing...");
 //                }
-                int illumiSum = 0;
+                double illumiSum = 0;
                 for(int i=0;i<logThreshold;i++){
                     illumiSum+=illumiLog.get((illumiLog.size() - 1) - i);
                 }
-                int illumiAve = (int)(illumiSum/logThreshold);
+                double illumiAve = (illumiSum/logThreshold);
                 if(Math.abs(illumiAve-illumiLog.get(start))<illumiAve*illumiThreshold*4){
                     check++;
                 }else{
@@ -421,24 +421,24 @@ public class MainActivity extends Activity implements SensorEventListener {
             //step4. step2に戻るために諸々頑張る
             else if(step==4){
                 //illumiAndTimeData = "";
-                int[] illumiLogBuf = new int[logThreshold];
+                double[] illumiLogBuf = new double[logThreshold];
                 long[] timeDataLogBuf = new long[logThreshold];
                 for(int i=0;i<logThreshold;i++){
                     illumiLogBuf[i]=illumiLog.get(illumiLog.size()-logThreshold+i);
                     timeDataLogBuf[i]=timeDataLog.get(timeDataLog.size()-logThreshold+i);
                 }
-                illumiLog = new ArrayList<Integer>();
+                illumiLog = new ArrayList<Double>();
                 timeDataLog = new ArrayList<Long>();
                 for(int i=0;i<logThreshold;i++){
                     illumiLog.add(illumiLogBuf[i]);
                     timeDataLog.add(timeDataLogBuf[i]);
                 }
-                int illumiSum = 0;
+                double illumiSum = 0;
                 for(int i=0;i<logThreshold;i++){
                     illumiSum+=illumiLog.get((illumiLog.size() - 1) - i);
                 }
-                int illumiAve = (int)(illumiSum/logThreshold);
-                if(Math.abs(illumiAve-illumiLog.get(illumiLog.size()-1))<(int)(illumiAve*illumiThreshold)){
+                double illumiAve = (illumiSum/logThreshold);
+                if(Math.abs(illumiAve-illumiLog.get(illumiLog.size()-1))<(illumiAve*illumiThreshold)){
                     check++;
                 }else{
                     check=0;
@@ -554,22 +554,22 @@ public class MainActivity extends Activity implements SensorEventListener {
             receivedMessage.setText("error");
         }
     }
-    public String judgeGesture(ArrayList<Integer>illumiLog, ArrayList<Long>timeDataLog, int start, int end){
+    public String judgeGesture(ArrayList<Double>illumiLog, ArrayList<Long>timeDataLog, int start, int end){
 //        int startTime = 0;
 //        int endTime   = (int)(end-start);
 
         //end特化型認識
-        int max = (int)((illumiLog.get(start)+illumiLog.get(end))/2);
+        double max = ((illumiLog.get(start)+illumiLog.get(end))/2);
         int bottom = 0;
 
         for (int i = start; i <= end; i++) {;
             if (i > 0 && illumiLog.get(i) < illumiLog.get(bottom)) bottom = i;
         }
 
-        int Ts = (int)(timeDataLog.get(bottom)-timeDataLog.get(start));
-        int Te = (int)(timeDataLog.get(end)-timeDataLog.get(bottom));
+        double Ts = (timeDataLog.get(bottom)-timeDataLog.get(start));
+        double Te = (timeDataLog.get(end)-timeDataLog.get(bottom));
 
-        int A= max - illumiLog.get(bottom);
+        double A= max - illumiLog.get(bottom);
         double deepness = (double)A/(double)max;
         double slope = (double)A/(double)Ts-(double)A/(double)Te;
 //        Log.d("slope",String.valueOf(slope));
@@ -618,7 +618,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     //波特化型認識
-    public double judgeWaveNum(ArrayList<Integer> illumiLog, int start, int end, int max){
+    public double judgeWaveNum(ArrayList<Double> illumiLog, int start, int end, double max){
         int waveFlag=0;
 //        for(int i = start;i<end;i++){
 //            int diff = illumiLog.get(i+1)-illumiLog.get(i);
@@ -627,11 +627,11 @@ public class MainActivity extends Activity implements SensorEventListener {
 //            }
 //        }
 
-        int lastDiff=0;
-        ArrayList<Integer> illumiMountainLog =  new ArrayList<Integer>();
+        double lastDiff=0.0;
+        ArrayList<Double> illumiMountainLog =  new ArrayList<Double>();
         for (int i=start;i<=end;i++){
             //illumiAndTimeData += i+"\t"+illumiLog.get(i)+"\n";
-            int diff = illumiLog.get(i+1)-illumiLog.get(i);
+            double diff = illumiLog.get(i+1)-illumiLog.get(i);
             if(Math.abs(diff)==0 || diff*lastDiff<0){
                 illumiMountainLog.add(illumiLog.get(i));
 //                Log.d("illumi", String.valueOf(illumiLog.get(i)));
@@ -644,9 +644,9 @@ public class MainActivity extends Activity implements SensorEventListener {
             return 0;
         }
 
-        int lastIllumiMountain = illumiMountainLog.get(0);
+        double lastIllumiMountain = illumiMountainLog.get(0);
         for(int i=1; i<illumiMountainLog.size();i++){
-            int illumiDiff = illumiMountainLog.get(i)-lastIllumiMountain;
+            double illumiDiff = illumiMountainLog.get(i)-lastIllumiMountain;
 //            Log.d("mountain",String.valueOf(illumiMountainLog.get(i)));
             if(Math.abs(illumiDiff)>(double)max*0.05){
                 waveFlag++;
@@ -660,9 +660,9 @@ public class MainActivity extends Activity implements SensorEventListener {
     //end特化型認識
     public int judgeEnd(){
         int endPoint = end;
-        int startIllumi = illumiLog.get(start);
+        double startIllumi = illumiLog.get(start);
         for(int i=endPoint;i>0;i--){
-            int diff = Math.abs(startIllumi-illumiLog.get(i));
+            double diff = Math.abs(startIllumi-illumiLog.get(i));
             if(diff>(double)startIllumi*0.05){
                 endPoint = i+1;
                 return endPoint;
@@ -774,7 +774,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 //            calibrationBperDevice = 0.239641099;
 //            calibrationCperDevice = 160.320846;
 
-            calibrationBperDevice=3.0;
+            calibrationBperDevice=1.0;
 
             logThreshold = 10;
             illumiThreshold = 0.025;
@@ -789,7 +789,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 //            calibrationBperDevice = 0.454065939;
 //            calibrationCperDevice = 160.43202;
 
-            calibrationBperDevice = 4.0;
+            calibrationBperDevice = 1.0;
 
             logThreshold = 10;
             illumiThreshold = 0.025;
