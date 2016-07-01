@@ -757,9 +757,9 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     public void setCalibrationByMacAdress() {
         if (macAddress.equals("30:85:a9:2f:00:af")) {
-            calibrationAperDevice = 0.0001008;
-            calibrationBperDevice = 0.356056925;
-            calibrationCperDevice = 61.36738592;
+//            calibrationAperDevice = 0.0001008;
+//            calibrationBperDevice = 0.356056925;
+//            calibrationCperDevice = 61.36738592;
 
             logThreshold = 10;
             illumiThreshold = 0.025;
@@ -770,9 +770,11 @@ public class MainActivity extends Activity implements SensorEventListener {
             slp = 0.45;
 
         } else if (macAddress.equals("ac:22:0b:5c:8c:0c")) {
-            calibrationAperDevice = 0.003207998;
-            calibrationBperDevice = 0.239641099;
-            calibrationCperDevice = 160.320846;
+//            calibrationAperDevice = 0.003207998;
+//            calibrationBperDevice = 0.239641099;
+//            calibrationCperDevice = 160.320846;
+
+            calibrationBperDevice=3.0;
 
             logThreshold = 10;
             illumiThreshold = 0.025;
@@ -783,9 +785,11 @@ public class MainActivity extends Activity implements SensorEventListener {
             slp = 0.45;
 
         } else if (macAddress.equals("02:00:00:00:00:00")) {
-            calibrationAperDevice = 0.005032123;
-            calibrationBperDevice = 0.454065939;
-            calibrationCperDevice = 160.43202;
+//            calibrationAperDevice = 0.005032123;
+//            calibrationBperDevice = 0.454065939;
+//            calibrationCperDevice = 160.43202;
+
+            calibrationBperDevice = 4.0;
 
             logThreshold = 10;
             illumiThreshold = 0.025;
