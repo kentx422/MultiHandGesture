@@ -52,6 +52,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     private boolean flag = true;
     private String illumiAndTimeData = "";
+    private String gestureAnser = "";
     private String macAddress;
     private int imageFFRK   = R.drawable.ffrk;
     private int imageLive2D = R.drawable.katoroku;
@@ -103,7 +104,10 @@ public class MainActivity extends Activity implements SensorEventListener {
     private String messageForReciving = "";
     String startTimeStamp = "";
 
-    double calibrationDevice = 1.1;
+    //二次関数の近似式
+    double calibrationAperDevice = 0.0;
+    double calibrationBperDevice = 1.0;
+    double calibrationCperDevice = 0.0;
 
     ArrayList<Integer> illumiLog = new ArrayList<Integer>();
     ArrayList<Long> timeDataLog  = new ArrayList<Long>();
@@ -282,6 +286,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                 } else {
                     onoff = 0;
                     button.setText("ON");
+                    sendFile(gestureAnser, illumiAndTimeData);
                 }
             }
         }
@@ -303,6 +308,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
             int lx = 0;
             long timeMillis = 0;
+            int calibrationlx = 0;
 
             if (event.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
                 return;
@@ -310,7 +316,11 @@ public class MainActivity extends Activity implements SensorEventListener {
 
             int type = event.sensor.getType();
             if (type == Sensor.TYPE_LIGHT) {
-                lx = (int) (event.values[0] * calibrationDevice);
+                double rowlx = (event.values[0]);
+                //キャリブレーション
+                calibrationlx = (int)(calibrationAperDevice*rowlx*rowlx+calibrationBperDevice*rowlx+calibrationCperDevice);
+                lx = calibrationlx;
+                //前後で割ってスムージング
                 if(lxBuf==-1){
                     lxBuf=lx;
                 }
@@ -392,22 +402,25 @@ public class MainActivity extends Activity implements SensorEventListener {
                 if(check>logThreshold*1.2){
                     step=4;
                     end=timeDataLog.size()-logThreshold;
-                    Log.d("end",String.valueOf(end));
                     end = judgeEnd();
-                    Log.d("tempend",String.valueOf(end));
                     //ジェスチャの判定
-                    String gestureAnser = judgeGesture(illumiLog, timeDataLog, start, end);
+                    gestureAnser = judgeGesture(illumiLog, timeDataLog, start, end);
                     result.setText(gestureAnser);
                     //timeStamp.setText("" + timeDataLog.get(start));
                     timeStamp.setText(testMessage);
-                    sendFile(gestureAnser, illumiAndTimeData);
+                    illumiAndTimeData += gestureAnser;
+                    for(int i=start;i<=end;i++){
+                        illumiAndTimeData+=","+illumiLog.get(i);
+                    }
+                    illumiAndTimeData += "\n";
+                    //sendFile(gestureAnser, illumiAndTimeData);
                     String serveTime = getNowTime();
                     onServe(serveTime + "," + macAddress + "," + start + "," + gestureAnser +"," + imageID+","+testMessage);
                 }
             }
             //step4. step2に戻るために諸々頑張る
             else if(step==4){
-                illumiAndTimeData = "";
+                //illumiAndTimeData = "";
                 int[] illumiLogBuf = new int[logThreshold];
                 long[] timeDataLogBuf = new long[logThreshold];
                 for(int i=0;i<logThreshold;i++){
@@ -617,7 +630,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         int lastDiff=0;
         ArrayList<Integer> illumiMountainLog =  new ArrayList<Integer>();
         for (int i=start;i<=end;i++){
-            illumiAndTimeData += i+"\t"+illumiLog.get(i)+"\n";
+            //illumiAndTimeData += i+"\t"+illumiLog.get(i)+"\n";
             int diff = illumiLog.get(i+1)-illumiLog.get(i);
             if(Math.abs(diff)==0 || diff*lastDiff<0){
                 illumiMountainLog.add(illumiLog.get(i));
@@ -650,8 +663,6 @@ public class MainActivity extends Activity implements SensorEventListener {
         int startIllumi = illumiLog.get(start);
         for(int i=endPoint;i>0;i--){
             int diff = Math.abs(startIllumi-illumiLog.get(i));
-            Log.d("i",String.valueOf(i));
-            Log.d("diff", String.valueOf(diff));
             if(diff>(double)startIllumi*0.05){
                 endPoint = i+1;
                 return endPoint;
@@ -746,40 +757,42 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     public void setCalibrationByMacAdress() {
         if (macAddress.equals("30:85:a9:2f:00:af")) {
-            calibrationDevice = 1.0;
+            calibrationAperDevice = 0.0001008;
+            calibrationBperDevice = 0.356056925;
+            calibrationCperDevice = 61.36738592;
+
             logThreshold = 10;
             illumiThreshold = 0.025;
-            waveThreshold = 0.06;
 
             dps = 0.85;
-            wav = 3.0;
+            wav = 2.0;
             tse = 700;
             slp = 0.45;
 
         } else if (macAddress.equals("ac:22:0b:5c:8c:0c")) {
-            calibrationDevice = 4.27;
-            logThreshold = 10;
-            illumiThreshold = 0.025;
-            waveThreshold = 0.03;
+            calibrationAperDevice = 0.003207998;
+            calibrationBperDevice = 0.239641099;
+            calibrationCperDevice = 160.320846;
 
             dps = 0.85;
-            wav = 3.0;
-            tse = 900;
+            wav = 2.0;
+            tse = 700;
             slp = 0.45;
 
         } else if (macAddress.equals("02:00:00:00:00:00")) {
-            calibrationDevice = 3.42;
-            logThreshold = 10;
-            illumiThreshold = 0.025;
-            waveThreshold = 0.03;
+            calibrationAperDevice = 0.005032123;
+            calibrationBperDevice = 0.454065939;
+            calibrationCperDevice = 160.43202;
 
             dps = 0.85;
-            wav = 3.0;
-            tse = 900;
+            wav = 2.0;
+            tse = 700;
             slp = 0.45;
 
         } else {
-            calibrationDevice = 0.0;
+            calibrationAperDevice = 0.0;
+            calibrationBperDevice = 1.0;
+            calibrationCperDevice = 0.0;
         }
     }
 }
