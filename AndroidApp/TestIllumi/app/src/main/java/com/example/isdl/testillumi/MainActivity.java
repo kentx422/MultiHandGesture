@@ -85,9 +85,9 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     double lxBuf=-1;
 
-    private final static String BR = System.getProperty("line.separator");
+    //private final static String BR = System.getProperty("line.separator");
     //IPアドレスの指定k
-    private final static String IP = "172.20.11.206";
+    private final static String IP = "172.20.11.176";
     private final static int PORT = 8080;
 
     private TextView lblReceive;//受信ラベル

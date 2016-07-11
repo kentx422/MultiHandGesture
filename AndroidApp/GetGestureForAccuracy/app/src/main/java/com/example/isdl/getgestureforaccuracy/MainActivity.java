@@ -7,13 +7,19 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
@@ -34,8 +40,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager manager;
     private String gesture;
 
-    ArrayList<Double> illumiLog = new ArrayList<Double>();
-    ArrayList<Long> timeDataLog  = new ArrayList<Long>();
+    ArrayList<String> illumiLog = new ArrayList< >();
+    ArrayList<String> timeDataLog  = new ArrayList< >();
+    ArrayList<String> nanotimeDataLog  = new ArrayList< >();
+
+    //IPアドレスの指定
+    private final static String IP = "172.20.11.176";
+    private final static int PORT = 8080;
+
+    private Socket socket; //ソケット
+    private InputStream in;     //入力ストリーム
+    private OutputStream out;    //出力ストリーム
+    private boolean error;  //エラー
+
+    private final Handler handler = new Handler();//ハンドラ
+
+    private String resieveMessage;
+    private String sendMessage;
 
 
     @Override
@@ -68,7 +89,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         hide.setOnClickListener(new clickListenerGesture());
         delete.setOnClickListener(new clickListenerGesture());
 
-        gesture = "slash";
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        //スレッドの生成
+        Thread thread = new Thread() {
+            public void run() {
+                try {
+                    connect(IP, PORT);
+                } catch (Exception e) {
+                }
+            }
+        };
+        thread.start();
+    }
+
+    //アクティビティの停止時に呼ばれる
+    @Override
+    public void onStop() {
+        super.onStop();
+        disconnect();
     }
 
     public void onResume() {
@@ -88,12 +131,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     onoff = 1;
                     onoffbutton.setText("OFF");
                     state.setText(gesture);
-                    //reset log
-                    illumiLog = new ArrayList<Double>();
-                    timeDataLog  = new ArrayList<Long>();
                 } else {
                     onoff = 0;
                     onoffbutton.setText("ON");
+                    sendMessage = "";
+                    for(int i = 0;i<timeDataLog.size();i++){
+                        sendMessage += timeDataLog.get(i)+","+nanotimeDataLog.get(i)+","+illumiLog.get(i)+";";
+                    }
+                    onServe(sendMessage);
+                    //reset log
+                    illumiLog = new ArrayList<String>();
+                    timeDataLog  = new ArrayList<String>();
+                    nanotimeDataLog  = new ArrayList<String>();
+
+                    gesture="";
+                    state.setText(gesture);
 
                 }
             }
@@ -119,12 +171,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             else if(view == roll){
                 gesture = "roll";
             }
-            else if(view == delete){
+
+            if(view == delete){
                 //reset log
-                illumiLog = new ArrayList<Double>();
-                timeDataLog  = new ArrayList<Long>();
+                gesture = "";
+                illumiLog = new ArrayList<String>();
+                timeDataLog  = new ArrayList<String>();
+                nanotimeDataLog  = new ArrayList<String>();
             }
-            state.setText(gesture);
+            else{
+                state.setText(gesture);
+                illumiLog.add(gesture);
+                timeDataLog.add(gesture);
+                nanotimeDataLog.add(gesture);
+            }
 
         }
     }
@@ -140,6 +200,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (onoff == 1) {
 
             double lx = 0;
+            long millistime = 0;
             long nanotime = 0;
 
             if (event.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
@@ -149,14 +210,113 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             int type = event.sensor.getType();
             if (type == Sensor.TYPE_LIGHT) {
                 lx = (event.values[0]);
+                millistime = System.currentTimeMillis();
                 nanotime = System.nanoTime();
+
                 nowlx.setText(""+lx);
 
-                illumiLog.add(lx);
-                timeDataLog.add(nanotime);
+                illumiLog.add(String.valueOf(lx));
+                timeDataLog.add(String.valueOf(millistime));
+                nanotimeDataLog.add(String.valueOf(nanotime));
             }
         }
     }
+
+    //接続
+    private void connect(String ip, int port) {
+        int size;
+        String strBuf = "";
+        byte[] w = new byte[1024];
+        try {
+            //ソケット接続
+            //addText("接続中");
+            //connectState.setText("接続中");
+            //state.setText("connect now");
+            socket = new Socket(ip, port);
+            in = socket.getInputStream();
+            out = socket.getOutputStream();
+            //addText("接続完了");
+            //connectState.setText("接続完了");
+            //state.setText("connect end");
+
+            while (socket != null && socket.isConnected()) {
+                //データの受信
+                size = in.read(w);
+                if (size <= 0) continue;
+                strBuf = new String(w, 0, size, "UTF-8");
+                //strRecive = str;
+                final String finalStrBuf = strBuf;
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!error) {
+                            resieveMessage = finalStrBuf;
+                            //様々な処理
+                            //someProcess(finalStrBuf);
+
+                        } else {
+                            //addText("通信失敗しました");
+                            //connectState.setText("通信失敗しました2");
+                        }
+                    }
+                });
+                //ラベルへの文字列追加
+                //connectState.setText("受信");
+                //receive.setText(""+str);
+            }
+        } catch (Exception e) {
+            //addText("通信失敗しました");
+            //connectState.setText("通信失敗しました\n"+e);
+            state.setText("connect fault");
+            Log.e("error", String.valueOf(e));
+        }
+    }
+
+    public void onServe(final String anser) {
+        //スレッッドの生成
+        Thread thread = new Thread(new Runnable() {
+            public void run() {
+                error = false;
+                try {
+                    //データの送信
+                    if (socket != null && socket.isConnected()) {
+                        String serveTime = getNowTime();
+                        String write = serveTime +","+ deviceName+";"+anser;
+                        byte[] w = write.getBytes("UTF8");
+                        out.write(w);
+                        out.flush();
+                    }
+                } catch (Exception e) {
+                    error = true;
+                }
+                //ハンドラの生成
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!error) {
+                        } else {
+                            //addText("通信失敗しました");
+                            //connectState.setText("通信失敗しました2");
+                        }
+                    }
+                });
+            }
+        });
+        thread.start();
+    }
+
+    //切断
+    private void disconnect() {
+        try {
+            //onServe("see u");
+            socket.close();
+            socket = null;
+        } catch (Exception e) {
+        }
+    }
+
+    //--------------接続プログラム終わり
+
     //recognize device using macAddress
     public static String getDeviceName(String macAddress) {
         if (macAddress.equals("30:85:a9:2f:00:af")) {
@@ -168,5 +328,40 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         } else {
             return "unknown";
         }
+    }
+
+    public static String getNowTime() {
+        // 時刻取得
+        Calendar calendar = Calendar.getInstance();
+        String nowTime = "" + calendar.get(Calendar.YEAR);
+        if (calendar.get(Calendar.MONTH) + 1 < 10) {
+            nowTime += "0" + (calendar.get(Calendar.MONTH) + 1);
+        } else {
+            nowTime += "" + (calendar.get(Calendar.MONTH) + 1);
+        }
+        if (calendar.get(Calendar.DAY_OF_MONTH) + 1 < 10) {
+            nowTime += "0" + calendar.get(Calendar.DAY_OF_MONTH);
+        } else {
+            nowTime += "" + calendar.get(Calendar.DAY_OF_MONTH);
+        }
+
+        //nowTime+="_";
+
+        if (calendar.get(Calendar.HOUR_OF_DAY) + 1 < 10) {
+            nowTime += "0" + calendar.get(Calendar.HOUR_OF_DAY);
+        } else {
+            nowTime += "" + calendar.get(Calendar.HOUR_OF_DAY);
+        }
+        if (calendar.get(Calendar.MINUTE) + 1 < 10) {
+            nowTime += "0" + calendar.get(Calendar.MINUTE);
+        } else {
+            nowTime += "" + calendar.get(Calendar.MINUTE);
+        }
+        if (calendar.get(Calendar.SECOND) + 1 < 10) {
+            nowTime += "0" + calendar.get(Calendar.SECOND);
+        } else {
+            nowTime += "" + calendar.get(Calendar.SECOND);
+        }
+        return nowTime;
     }
 }
