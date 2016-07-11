@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
@@ -221,8 +222,9 @@ public class MainActivity extends Activity implements SensorEventListener {
                 try {
                     //データの送信
                     if (socket != null && socket.isConnected()) {
-                        //String write = serveTime +","+ macAddress +","+anser;
-                        byte[] w = anser.getBytes("UTF8");
+                        String serveTime = getNowTime();
+                        String write = serveTime +","+ macAddress +","+anser;
+                        byte[] w = write.getBytes("UTF8");
                         out.write(w);
                         out.flush();
                     }
@@ -286,7 +288,8 @@ public class MainActivity extends Activity implements SensorEventListener {
                 } else {
                     onoff = 0;
                     button.setText("ON");
-                    sendFile(gestureAnser, illumiAndTimeData);
+                    //sendFile(gestureAnser, illumiAndTimeData);
+                    onServe(start+",log\n,"+illumiAndTimeData);
                 }
             }
         }
@@ -414,8 +417,8 @@ public class MainActivity extends Activity implements SensorEventListener {
                     }
                     illumiAndTimeData += "\n";
                     //sendFile(gestureAnser, illumiAndTimeData);
-                    String serveTime = getNowTime();
-                    onServe(serveTime + "," + macAddress + "," + start + "," + gestureAnser +"," + imageID+","+testMessage);
+                    //String serveTime = getNowTime();
+                    onServe(start + "," + gestureAnser +"," + imageID+","+testMessage);
                 }
             }
             //step4. step2に戻るために諸々頑張る
@@ -471,7 +474,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         // yyyyMMddhhmmssファイル名.txtになるようにする
 
-        String filePath = "/sdcard/test/" + fileName + "_" + getNowTime() + ".csv";
+        String filePath = Environment.getExternalStorageDirectory() + "/sample.txt";
+        //String filePath = "/sdcard/" + fileName + "_" + getNowTime() + ".csv";
         File file = new File(filePath);
 
         // パッケージ名フォルダを作成します。
