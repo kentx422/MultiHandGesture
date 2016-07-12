@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class FormatCSV {
 
@@ -38,8 +39,9 @@ public class FormatCSV {
         }
         
         
+        //System.out.println(writeData);
         //CSVに書き込み
-        //writeCSV("all",writeData);
+        writeCSV("all"+getNowTime(),writeData);
 	}
 	
 	//データ解析
@@ -60,7 +62,7 @@ public class FormatCSV {
 			String firstData = splitComma[0];
 			if(firstData.equals("slash")||firstData.equals("up")||firstData.equals("down")||firstData.equals("roll")||firstData.equals("hide")){
 				if(!gesture.equals("")){
-					result += extractFeature(gesture,aveLux,nanoTime,lux);
+					result += extractFeature(gesture,aveLux,nanoTime,lux)+"\n";
 				}
 				else{
 					for(int j = 1; j<tempLux.size();j++){
@@ -87,7 +89,7 @@ public class FormatCSV {
 				}
 			}
 		}
-		result += extractFeature(gesture,aveLux,nanoTime,lux);
+		result += extractFeature(gesture,aveLux,nanoTime,lux)+"\n";
 		
 		return result;
 	}
@@ -96,8 +98,10 @@ public class FormatCSV {
 	public static String extractFeature(String gesture,Double aveLux,ArrayList<String> nanoTime, ArrayList<String> lux){
 		String result = "";
 		
-		int startPoint = -1;
-		int endPoint = -1;
+		int startPoint = 0;
+		int endPoint = lux.size()-1;
+		int maxPoint = 0;
+		int minPoint = 0;
 		
 		double waveCount = 0.0;
 		double totalWidth = 0.0;
@@ -115,28 +119,60 @@ public class FormatCSV {
 		}
 		
 		//start探し
-		for(int i = 0;i<lux.size();i++){
-			if(Math.abs(aveLux - illumiLog.get(i)) > threshold){
+		for(int i = 1;i<lux.size();i++){
+			if(Math.abs(illumiLog.get(i-1) - illumiLog.get(i)) > threshold){
 				startPoint = i-1;
 				break;
 			}
 		}
 		//end探し
-		for(int i = lux.size()-1;i>=0;i--){
-			if(Math.abs(aveLux - illumiLog.get(i)) > threshold){
+		for(int i = lux.size()-2;i>=0;i--){
+			if(Math.abs(illumiLog.get(i) - illumiLog.get(i+1)) > threshold){
 				endPoint = i+1;
 				break;
 			}
 		}
 		
+		//max探し
+		double max = 0.0;
+		for(int i = 0;i<lux.size();i++){
+			if(illumiLog.get(i) > max){
+				maxPoint = i;
+				max = illumiLog.get(i);
+			}
+		}
+		//max探し
+		double min = aveLux;
+		for(int i = 0;i<lux.size();i++){
+			if(illumiLog.get(i) < min){
+				minPoint = i;
+				min = illumiLog.get(i);
+			}
+		}
+		
+		
+		System.out.println(startPoint+","+endPoint);
+		System.out.println(illumiLog.get(startPoint)+","+illumiLog.get(endPoint));
+		
 		//weveCount
 		waveCount = judgeWaveNum(illumiLog, startPoint, endPoint, aveLux);
 		
+		//totalWidth msで表現
+		totalWidth = (Double.parseDouble(nanoTime.get(endPoint)) - Double.parseDouble(nanoTime.get(startPoint)))/1000000.0;
+		
+		//tiltAve
+		double ts = (Double.parseDouble(nanoTime.get(minPoint)) - Double.parseDouble(nanoTime.get(startPoint)))/1000000.0;
+		double te = (Double.parseDouble(nanoTime.get(endPoint)) - Double.parseDouble(nanoTime.get(minPoint)))/1000000.0;
+		double A  = illumiLog.get(maxPoint) - illumiLog.get(minPoint);
+		tiltAve = A/ts - A/te;
+		
+		//deepness
+		deepness = A / illumiLog.get(maxPoint);
 		
 		
-		System.out.println(illumiLog.get(startPoint)+","+illumiLog.get(endPoint));
+		//System.out.println(illumiLog.get(startPoint)+","+illumiLog.get(endPoint));
 		result = waveCount+","+totalWidth+","+tiltAve+","+deepness+","+gesture;
-		System.out.println(result);
+		//System.out.println(result);
 		
 		return result;
 	}
@@ -201,6 +237,41 @@ public class FormatCSV {
     }
 	
 	
+	 public static String getNowTime() {
+	        // 時刻取得
+	        Calendar calendar = Calendar.getInstance();
+	        String nowTime = "" + calendar.get(Calendar.YEAR);
+	        if (calendar.get(Calendar.MONTH) + 1 < 10) {
+	            nowTime += "0" + (calendar.get(Calendar.MONTH) + 1);
+	        } else {
+	            nowTime += "" + (calendar.get(Calendar.MONTH) + 1);
+	        }
+	        if (calendar.get(Calendar.DAY_OF_MONTH) + 1 < 10) {
+	            nowTime += "0" + calendar.get(Calendar.DAY_OF_MONTH);
+	        } else {
+	            nowTime += "" + calendar.get(Calendar.DAY_OF_MONTH);
+	        }
+
+	        //nowTime+="_";
+
+	        if (calendar.get(Calendar.HOUR_OF_DAY) + 1 < 10) {
+	            nowTime += "0" + calendar.get(Calendar.HOUR_OF_DAY);
+	        } else {
+	            nowTime += "" + calendar.get(Calendar.HOUR_OF_DAY);
+	        }
+	        if (calendar.get(Calendar.MINUTE) + 1 < 10) {
+	            nowTime += "0" + calendar.get(Calendar.MINUTE);
+	        } else {
+	            nowTime += "" + calendar.get(Calendar.MINUTE);
+	        }
+	        if (calendar.get(Calendar.SECOND) + 1 < 10) {
+	            nowTime += "0" + calendar.get(Calendar.SECOND);
+	        } else {
+	            nowTime += "" + calendar.get(Calendar.SECOND);
+	        }
+	        return nowTime;
+	    }
+	
 	
 	
 	//----------以下、ジェスチャ認識------------
@@ -258,6 +329,7 @@ public class FormatCSV {
       ArrayList<Double> illumiMountainLog =  new ArrayList<Double>();
       illumiMountainLog.add(max);
       for (int i=start;i<=end;i++){
+    	  System.out.println(illumiLog.get(i+1)+"-"+illumiLog.get(i));
           double diff = illumiLog.get(i+1)-illumiLog.get(i);
           if(Math.abs(diff)==0 || diff*lastDiff<0){
     	    illumiMountainLog.add(illumiLog.get(i));
@@ -319,3 +391,4 @@ public class FormatCSV {
       return endPoint;
   }
 }
+//----------以上、ジェスチャ認識------------
