@@ -23,7 +23,7 @@ public class FormatCSV {
 		File files[] = file.listFiles();
 		
 		
-		writeData += "waveCountForSingle,TotalWidth,tiltAve,variance,sd,deepest/totalTop,class\n";
+		writeData += "waveCount,TotalWidth,tiltAve,deepest,class\n";
 		
 		
         //取得した一覧を表示する
@@ -49,7 +49,10 @@ public class FormatCSV {
 		ArrayList<String> startTime = new ArrayList<>();
 		ArrayList<String> nowTime 	= new ArrayList<>();
 		ArrayList<String> nanoTime 	= new ArrayList<>();
-		ArrayList<String> lx 		= new ArrayList<>();
+		ArrayList<String> lux 		= new ArrayList<>();
+		
+		ArrayList<String> tempLux 	= new ArrayList<>();
+		double aveLux =0.0;
 		
 		String[] splitN = data.split("\n");
 		for(int i=0;i<splitN.length;i++){
@@ -57,12 +60,18 @@ public class FormatCSV {
 			String firstData = splitComma[0];
 			if(firstData.equals("slash")||firstData.equals("up")||firstData.equals("down")||firstData.equals("roll")||firstData.equals("hide")){
 				if(!gesture.equals("")){
-					result += extractFeature(gesture,nanoTime,lx);
+					result += extractFeature(gesture,aveLux,nanoTime,lux);
+				}
+				else{
+					for(int j = 1; j<tempLux.size();j++){
+						aveLux += Double.parseDouble(tempLux.get(j));
+					}
+					aveLux /= tempLux.size()-1;
 				}
 				startTime 	= new ArrayList<>();
 				nowTime 	= new ArrayList<>();
 				nanoTime 	= new ArrayList<>();
-				lx 			= new ArrayList<>();
+				lux 		= new ArrayList<>();
 				gesture = firstData;
 				
 			}
@@ -70,21 +79,64 @@ public class FormatCSV {
 				startTime.add(splitComma[0]);
 				nowTime.add(splitComma[1]);
 				nanoTime.add(splitComma[2]);
-				lx.add(splitComma[3]);
+				lux.add(splitComma[3]);
+			}
+			else{
+				if(splitComma.length==4){
+					tempLux.add(splitComma[3]);
+				}
 			}
 		}
-		result += extractFeature(gesture,nanoTime,lx);
+		result += extractFeature(gesture,aveLux,nanoTime,lux);
 		
 		return result;
 	}
 	
 	//特徴点抽出
-	public static String extractFeature(String gesture,ArrayList<String> nanoTime, ArrayList<String> lx){
+	public static String extractFeature(String gesture,Double aveLux,ArrayList<String> nanoTime, ArrayList<String> lux){
 		String result = "";
-		String startPoint = "";
-		String endPoint = "";
 		
-		System.out.println(gesture);
+		int startPoint = -1;
+		int endPoint = -1;
+		
+		double waveCount = 0.0;
+		double totalWidth = 0.0;
+		double tiltAve = 0.0;
+		double deepness = 0.0;
+
+		//どれだけ変化したらstartあるいはendとみなすかの閾値
+		double threshold = aveLux*0.02;
+		
+		
+		//lux(ArrayList<String>) >> illumiLog(ArrayList(Double))
+		ArrayList<Double> illumiLog = new ArrayList<Double>();
+		for(int i = 0;i<lux.size();i++){
+			illumiLog.add(Double.parseDouble(lux.get(i)));
+		}
+		
+		//start探し
+		for(int i = 0;i<lux.size();i++){
+			if(Math.abs(aveLux - illumiLog.get(i)) > threshold){
+				startPoint = i-1;
+				break;
+			}
+		}
+		//end探し
+		for(int i = lux.size()-1;i>=0;i--){
+			if(Math.abs(aveLux - illumiLog.get(i)) > threshold){
+				endPoint = i+1;
+				break;
+			}
+		}
+		
+		//weveCount
+		waveCount = judgeWaveNum(illumiLog, startPoint, endPoint, aveLux);
+		
+		
+		
+		System.out.println(illumiLog.get(startPoint)+","+illumiLog.get(endPoint));
+		result = waveCount+","+totalWidth+","+tiltAve+","+deepness+","+gesture;
+		System.out.println(result);
 		
 		return result;
 	}
@@ -147,4 +199,123 @@ public class FormatCSV {
         }
         return message;
     }
+	
+	
+	
+	
+	//----------以下、ジェスチャ認識------------
+	public static String judgeGesture(ArrayList<Double>illumiLog, ArrayList<Long>timeDataLog, int start, int end){
+//      int startTime = 0;
+//      int endTime   = (int)(end-start);
+
+      //end特化型認識
+      double max = ((illumiLog.get(start)+illumiLog.get(end))/2);
+      int bottom = 0;
+
+      for (int i = start; i <= end; i++) {;
+          if (i > 0 && illumiLog.get(i) < illumiLog.get(bottom)) bottom = i;
+      }
+
+      double Ts = (timeDataLog.get(bottom)-timeDataLog.get(start));
+      double Te = (timeDataLog.get(end)-timeDataLog.get(bottom));
+
+      double A= max - illumiLog.get(bottom);
+      double deepness = (double)A/(double)max;
+      double slope = (double)A/(double)Ts-(double)A/(double)Te;
+//      Log.d("slope",String.valueOf(slope));
+//      Log.d("A",String.valueOf(A));
+//      Log.d("Ts",String.valueOf(Ts));
+//      Log.d("Te",String.valueOf(Te));a
+      double time  = (double)(Ts+Te);
+      //wave特化型認識
+      double wave = judgeWaveNum(illumiLog,start,end,max);
+
+      //全ジェスチャ
+//      if (deepness >= dps) return "HIDE";
+//      else if (wave >= wav) return "ROLL";
+//      else if (time >= tse) {
+//          if (slope >= slp) return "UP";
+//              //if(St<0) gesture = 2;
+//          else return "DOWN";
+//      } else {
+//          if (slope >= 130) return "UP";
+//          else return "SLASH";
+//      }
+      return "";
+      //startからendまでをarraylistから抽出してillumiandtimeData
+
+
+      //HIDEとSLASHのジェスチャ
+//      if (deepness >= dps) return "HIDE";
+//      else return "SLASH";
+
+  }
+
+  //波特化型認識
+  public static double judgeWaveNum(ArrayList<Double> illumiLog, int start, int end, double max){
+      int waveFlag=0;
+      double lastDiff=0.0;
+      ArrayList<Double> illumiMountainLog =  new ArrayList<Double>();
+      illumiMountainLog.add(max);
+      for (int i=start;i<=end;i++){
+          double diff = illumiLog.get(i+1)-illumiLog.get(i);
+          if(Math.abs(diff)==0 || diff*lastDiff<0){
+    	    illumiMountainLog.add(illumiLog.get(i));
+              //System.out.println(illumiLog.get(i));
+          }
+          lastDiff=diff;
+      }
+      illumiMountainLog.add(max);
+      
+      if(illumiMountainLog.size()==2){
+          return 0;
+      }
+
+      ArrayList<Double> illumiMountainClusterLog =  new ArrayList<Double>();
+      illumiMountainClusterLog.add(illumiMountainLog.get(0));
+      for(int i=1; i<illumiMountainLog.size();i++){
+    	  double diff = illumiMountainLog.get(i-1)-illumiMountainLog.get(i);
+    	  if(Math.abs(diff)>max*0.2){
+    		  illumiMountainClusterLog.add(illumiMountainLog.get(i));
+    	  }
+      }
+      
+//      System.out.println(illumiMountainLog);
+//      System.out.println(illumiMountainClusterLog);
+      
+      double lastIllumiMountainCluster = illumiMountainClusterLog.get(0);
+      double lastIllumiDiff = 0.0;
+      
+      for(int i=1; i<illumiMountainClusterLog.size();i++){
+          double illumiDiff = illumiMountainClusterLog.get(i)-lastIllumiMountainCluster;
+          //System.out.println(illumiDiff+","+lastIllumiDiff);
+          if(illumiDiff*lastIllumiDiff<0){
+        	  waveFlag++;
+        	  //System.out.println("wave");
+          }
+          
+//          if(Math.abs(illumiDiff)>(double)max*0.2){
+//              waveFlag++;
+//              System.out.println("diff:"+illumiDiff);
+//          }
+          lastIllumiMountainCluster=illumiMountainLog.get(i);
+          lastIllumiDiff = illumiDiff;
+      }
+      return (waveFlag+1.0)/2.0;
+  }
+
+  //end特化型認識
+  public static int judgeEnd(ArrayList<Double> illumiLog, int start, int end){
+	  
+      int endPoint = end;
+      double startIllumi = illumiLog.get(start);
+      for(int i=endPoint;i>0;i--){
+          double diff = Math.abs(startIllumi-illumiLog.get(i));
+          if(diff>(double)startIllumi*0.05){
+              endPoint = i+1;
+              return endPoint;
+          }
+      }
+      return endPoint;
+  }
 }
