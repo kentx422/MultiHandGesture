@@ -109,11 +109,11 @@ public class ChatServerThread extends Thread {
 				splitComma = splitSemicolon[j].split(",");
 				if(isLong(splitComma[0])){
 					transformMessage += String.valueOf(start)+","+splitComma[0]+","+splitComma[1]+","+splitComma[2]+"\n";
-					System.out.println(transformMessage);
+					//System.out.println(transformMessage);
 				}
 				else{
 					transformMessage += splitComma[0]+"\n";
-					System.out.println(transformMessage);
+					//System.out.println(transformMessage);
 				}
 			}
 		}

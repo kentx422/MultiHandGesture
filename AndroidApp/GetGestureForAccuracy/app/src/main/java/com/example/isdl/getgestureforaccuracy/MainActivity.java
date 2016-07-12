@@ -43,6 +43,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager manager;
     private String gesture;
 
+    private int slashCount;
+    private int upCount;
+    private int downCount;
+    private int rollCount;
+    private int hideCount;
+
     ArrayList<String> illumiLog = new ArrayList< >();
     ArrayList<String> timeDataLog  = new ArrayList< >();
     ArrayList<String> nanotimeDataLog  = new ArrayList< >();
@@ -187,6 +193,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     illumiLog = new ArrayList<String>();
                     timeDataLog  = new ArrayList<String>();
                     nanotimeDataLog  = new ArrayList<String>();
+                    slashCount = 0;
+                    upCount = 0;
+                    downCount = 0;
+                    rollCount = 0;
+                    hideCount = 0;
+                    slash.setText("slash: " + slashCount);
+                    up.setText("up: " + upCount);
+                    down.setText("down: " + downCount);
+                    roll.setText("roll: " + rollCount);
+                    hide.setText("hide: " + hideCount);
 
                     gesture="";
                     state.setText(gesture);
@@ -202,18 +218,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             if (view == slash) {
                 gesture = "slash";
+                slashCount++;
+                slash.setText("slash: "+slashCount);
             }
             else if(view == up){
                 gesture = "up";
+                upCount++;
+                up.setText("up: " + upCount);
             }
             else if(view == down){
                 gesture = "down";
+                downCount++;
+                down.setText("down: " + downCount);
             }
             else if(view == hide){
                 gesture = "hide";
+                hideCount++;
+                hide.setText("hide: " + hideCount);
             }
             else if(view == roll){
                 gesture = "roll";
+                rollCount++;
+                roll.setText("roll: "+rollCount);
             }
 
             else if(view == delete){
