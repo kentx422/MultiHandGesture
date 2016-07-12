@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     ArrayList<String> nanotimeDataLog  = new ArrayList< >();
 
     //IPアドレスの指定
-    private final static String IP = "172.20.11.176";
+    private final static String IP = "172.20.11.184";
     private final static int PORT = 8080;
 
     private Socket socket; //ソケット
@@ -134,11 +134,50 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 } else {
                     onoff = 0;
                     onoffbutton.setText("ON");
-                    sendMessage = "";
+                    sendMessage = ""+ getNowTime()+","+deviceName+";";
+                    //Log.d("sendMessage", sendMessage);
+                    int sendLenge = 20;
                     for(int i = 0;i<timeDataLog.size();i++){
+                        if(i%sendLenge==0){
+                            try {
+                                Thread.sleep(500);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            onServe(sendMessage);
+                            sendMessage ="";
+                        }
+                        if(timeDataLog.get(i).equals("delete")){
+                            Log.d("delete","");
+                            try {
+                                Thread.sleep(500);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            onServe(sendMessage);
+                            try {
+                                Thread.sleep(500);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            sendMessage ="delete";
+                            onServe(sendMessage);
+                            sendMessage ="";
+                            break;
+                        }
                         sendMessage += timeDataLog.get(i)+","+nanotimeDataLog.get(i)+","+illumiLog.get(i)+";";
+                        //Log.d("sendMessage",sendMessage);
                     }
-                    onServe(sendMessage);
+                    if(!sendMessage.equals("")){
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        onServe(sendMessage);
+                        sendMessage ="";
+                    }
+
                     //reset log
                     illumiLog = new ArrayList<String>();
                     timeDataLog  = new ArrayList<String>();
@@ -172,20 +211,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 gesture = "roll";
             }
 
-            if(view == delete){
+            else if(view == delete){
                 //reset log
-                gesture = "";
-                illumiLog = new ArrayList<String>();
-                timeDataLog  = new ArrayList<String>();
-                nanotimeDataLog  = new ArrayList<String>();
-            }
-            else{
-                state.setText(gesture);
-                illumiLog.add(gesture);
-                timeDataLog.add(gesture);
-                nanotimeDataLog.add(gesture);
+                gesture = "delete";
+//                illumiLog = new ArrayList<String>();
+//                timeDataLog  = new ArrayList<String>();
+//                nanotimeDataLog  = new ArrayList<String>();
             }
 
+            state.setText(gesture);
+            illumiLog.add(gesture);
+            timeDataLog.add(gesture);
+            nanotimeDataLog.add(gesture);
         }
     }
 
@@ -280,8 +317,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 try {
                     //データの送信
                     if (socket != null && socket.isConnected()) {
-                        String serveTime = getNowTime();
-                        String write = serveTime +","+ deviceName+";"+anser;
+                        //String serveTime = getNowTime();
+                        //String write = serveTime +","+ deviceName+";"+anser;
+                        String write = anser;
                         byte[] w = write.getBytes("UTF8");
                         out.write(w);
                         out.flush();

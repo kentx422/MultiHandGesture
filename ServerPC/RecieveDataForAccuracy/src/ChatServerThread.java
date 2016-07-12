@@ -17,6 +17,7 @@ public class ChatServerThread extends Thread {
 	private Socket socket;// ソケット
 	Device device[] = new Device[100];
 	private int deviceNum = 0;
+	static String recieveMessage = "";
 
 	// private int ImageSomeShareFlag=0;
 	// private long ImageSomeShareTimeStamp=0;
@@ -45,8 +46,10 @@ public class ChatServerThread extends Thread {
 					size = in.read(w);
 
 					// 切断
-					if (size <= 0)
+					if (size <= 0){
+						recieveMessage = "";
 						throw new IOException();
+					}
 
 					// 読み込み
 					message = new String(w, 0, size, "UTF8");
@@ -55,8 +58,8 @@ public class ChatServerThread extends Thread {
 					// 様々な処理
 					//message = someProcess(message);
 					
-					TransformMessage(message);
-					
+					//TransformMessage(message);
+					FormatMessage(message);
 					
 					//System.out.println("Send message" + message);
 					// 全員にメッセージ送信
@@ -76,21 +79,42 @@ public class ChatServerThread extends Thread {
 		}
 	}
 	
+	public void FormatMessage(String message){
+		String[] str = message.split(",");
+		if(str[0].equals("delete")){
+			System.out.println("transform!!");
+			TransformMessage(recieveMessage);
+			recieveMessage="";
+		}
+		else{
+			recieveMessage += message+"\n"; 
+		}	
+	}
+	
 	public void TransformMessage(String message){
+		System.out.println("transform!!");
+		System.out.println(">>"+message);
 		long start = ChatServer.startTime;
-		String writeMessage="";
-		String[] strRow = message.split(";"); 
-		String[] strColumn = message.split(",");
-		String filename = "["+strColumn[1]+"]"+strColumn[0]+"";
+		
+		String[] splitN = message.split("\n");
+		String[] splitSemicolon = splitN[0].split(";");
+		String[] splitComma = splitSemicolon[0].split(",");
+		String filename = "["+splitComma[1]+"]"+splitComma[0]+"";
+		
 		String transformMessage = "startTime,nowTime,nanoTime,lx\n";
-		for(int i = 1;i<strRow.length;i++){
-			strColumn = strRow[i].split(",");
-			if(isLong(strColumn[0])){
-				//long time = Long.parseLong(strColumn[0]) - start;
-				transformMessage += String.valueOf(start)+","+strColumn[0]+","+strColumn[1]+","+strColumn[2]+"\n";
-			}
-			else{
-				transformMessage +=  strColumn[0]+"\n";
+		
+		for(int i = 1;i<splitN.length;i++){
+			splitSemicolon = splitN[i].split(";");
+			for(int j = 0;j<splitSemicolon.length;j++){
+				splitComma = splitSemicolon[j].split(",");
+				if(isLong(splitComma[0])){
+					transformMessage += String.valueOf(start)+","+splitComma[0]+","+splitComma[1]+","+splitComma[2]+"\n";
+					System.out.println(transformMessage);
+				}
+				else{
+					transformMessage += splitComma[0]+"\n";
+					System.out.println(transformMessage);
+				}
 			}
 		}
 		writeCSV(filename,transformMessage);

@@ -30,6 +30,7 @@ public class ChatServer {
 					//チャットサーバスレッド開始
 					thread=new ChatServerThread(socket);
 					thread.start();
+					thread.recieveMessage="";
 					System.out.println("接続開始");
 				} catch (IOException e) {
 				}
