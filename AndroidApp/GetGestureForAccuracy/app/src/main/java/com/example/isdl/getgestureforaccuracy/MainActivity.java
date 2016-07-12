@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Button hide;
     private Button delete;
     private EditText subjectNameGet;
+    private TextView version;
 
     private int onoff;
     private String macAddress;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private String subjectName;
     private SensorManager manager;
     private String gesture;
+    private String versionNow = "show version 1.0";
 
     private int slashCount;
     private int upCount;
@@ -89,6 +91,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         hide = (Button) findViewById(R.id.hide);
         delete = (Button) findViewById(R.id.delete);
         subjectNameGet = (EditText) findViewById(R.id.subjectName);
+        version = (TextView) findViewById(R.id.version);
+        version.setText("version: "+versionNow);
 
         manager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         onoffbutton.setOnClickListener(new clickListener());
