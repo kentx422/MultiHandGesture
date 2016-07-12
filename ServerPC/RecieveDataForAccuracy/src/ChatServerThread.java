@@ -99,7 +99,7 @@ public class ChatServerThread extends Thread {
 		String[] splitN = message.split("\n");
 		String[] splitSemicolon = splitN[0].split(";");
 		String[] splitComma = splitSemicolon[0].split(",");
-		String filename = "["+splitComma[1]+"]"+splitComma[0]+"";
+		String filename = splitComma[2]+"_"+splitComma[1]+"_"+splitComma[0]+"";
 		
 		String transformMessage = "startTime,nowTime,nanoTime,lx\n";
 		

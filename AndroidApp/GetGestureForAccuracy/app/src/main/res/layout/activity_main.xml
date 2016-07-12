@@ -102,4 +102,14 @@
         android:layout_alignParentRight="true"
         android:layout_marginTop="280dp"
         android:layout_marginRight="20dp" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/subjectName"
+        android:text="unknown"
+        android:textSize="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="50dp"/>
 </RelativeLayout>

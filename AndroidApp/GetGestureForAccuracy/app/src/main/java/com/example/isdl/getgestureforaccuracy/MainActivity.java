@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.InputStream;
@@ -33,10 +34,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Button roll;
     private Button hide;
     private Button delete;
+    private EditText subjectNameGet;
 
     private int onoff;
     private String macAddress;
     private String deviceName;
+    private String subjectName;
     private SensorManager manager;
     private String gesture;
 
@@ -79,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         roll = (Button) findViewById(R.id.roll);
         hide = (Button) findViewById(R.id.hide);
         delete = (Button) findViewById(R.id.delete);
+        subjectNameGet = (EditText) findViewById(R.id.subjectName);
 
         manager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         onoffbutton.setOnClickListener(new clickListener());
@@ -134,7 +138,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 } else {
                     onoff = 0;
                     onoffbutton.setText("ON");
-                    sendMessage = ""+ getNowTime()+","+deviceName+";";
+                    subjectName = subjectNameGet.getText().toString();
+                    sendMessage = ""+ getNowTime()+","+deviceName+","+subjectName+";";
                     //Log.d("sendMessage", sendMessage);
                     int sendLenge = 20;
                     for(int i = 0;i<timeDataLog.size();i++){
@@ -358,11 +363,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     //recognize device using macAddress
     public static String getDeviceName(String macAddress) {
         if (macAddress.equals("30:85:a9:2f:00:af")) {
-            return "nexus7_2012";
+            return "nexus7-2012-hmurakami";
         } else if (macAddress.equals("ac:22:0b:5c:8c:0c")) {
-            return "nexus7_2013_haida";
+            return "nexus7-2013-haida";
         } else if (macAddress.equals("02:00:00:00:00:00")) {
-            return "nexus7_2013_amiyoshi";
+            return "nexus7-2013-amiyoshi";
         } else {
             return "unknown";
         }
