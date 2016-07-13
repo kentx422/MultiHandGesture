@@ -18,6 +18,7 @@ public class FormatCSV {
 		//ファイル名の一覧を取得する
 		String readData  = "";
 		String writeData = "";
+		String filename  = "all";
 		
         //File file = new File("C:\\test");
         File file = new File("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\data");
@@ -30,18 +31,21 @@ public class FormatCSV {
         //取得した一覧を表示する
         for (int i=0; i<files.length; i++) {
             //System.out.println("ファイル" + (i+1) + "→" + files[i]);
-        	String filename = files[i].toString();
+        	String getFilename = files[i].toString();
         	//CSVを読み出し
-        	readData = readCSV(filename);
+        	readData = readCSV(getFilename);
         	//データ解析
         	writeData += analyticsData(readData);
-        	
+        	//filename決定
+        	String[] splitEn = getFilename.split("\\\\");
+        	String[] splitUnderber = splitEn[splitEn.length-1].split("_");
+        	filename += "["+splitUnderber[0]+"_"+splitUnderber[1]+"]";
         }
         
         
         //System.out.println(writeData);
         //CSVに書き込み
-        writeCSV("all"+getNowTime(),writeData);
+        writeCSV(filename+""+getNowTime(),writeData);
 	}
 	
 	//データ解析
@@ -109,7 +113,7 @@ public class FormatCSV {
 		double deepness = 0.0;
 
 		//どれだけ変化したらstartあるいはendとみなすかの閾値
-		double threshold = aveLux*0.02;
+		double threshold = aveLux*0.05;
 		
 		
 		//lux(ArrayList<String>) >> illumiLog(ArrayList(Double))
@@ -151,8 +155,8 @@ public class FormatCSV {
 		}
 		
 		
-		System.out.println(startPoint+","+endPoint);
-		System.out.println(illumiLog.get(startPoint)+","+illumiLog.get(endPoint));
+//		System.out.println(startPoint+","+endPoint);
+//		System.out.println(illumiLog.get(startPoint)+","+illumiLog.get(endPoint));
 		
 		//weveCount
 		waveCount = judgeWaveNum(illumiLog, startPoint, endPoint, aveLux);
@@ -329,7 +333,7 @@ public class FormatCSV {
       ArrayList<Double> illumiMountainLog =  new ArrayList<Double>();
       illumiMountainLog.add(max);
       for (int i=start;i<=end;i++){
-    	  System.out.println(illumiLog.get(i+1)+"-"+illumiLog.get(i));
+    	  //System.out.println(illumiLog.get(i+1)+"-"+illumiLog.get(i));
           double diff = illumiLog.get(i+1)-illumiLog.get(i);
           if(Math.abs(diff)==0 || diff*lastDiff<0){
     	    illumiMountainLog.add(illumiLog.get(i));

@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Button delete;
     private EditText subjectNameGet;
     private TextView version;
+    private TextView resolution;
 
     private int onoff;
     private String macAddress;
@@ -43,7 +44,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private String subjectName;
     private SensorManager manager;
     private String gesture;
-    private String versionNow = "show version 1.0";
+    //version: "show version 1.0" >> "show resolution 1.0"
+    private String versionNow = "show resolution 1.2";
 
     private int slashCount;
     private int upCount;
@@ -93,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         subjectNameGet = (EditText) findViewById(R.id.subjectName);
         version = (TextView) findViewById(R.id.version);
         version.setText("version: "+versionNow);
+        resolution = (TextView) findViewById(R.id.resolution);
 
         manager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         onoffbutton.setOnClickListener(new clickListener());
@@ -151,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     subjectName = subjectNameGet.getText().toString();
                     sendMessage = ""+ getNowTime()+","+deviceName+","+subjectName+";";
                     //Log.d("sendMessage", sendMessage);
-                    int sendLenge = 20;
+                    int sendLenge = 64;
                     for(int i = 0;i<timeDataLog.size();i++){
                         if(i%sendLenge==0){
                             try {
@@ -286,7 +289,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 nanotime = System.nanoTime();
 
                 nowlx.setText(""+lx);
-
+                if(nanotimeDataLog.size()!=0&&isLong(nanotimeDataLog.get(nanotimeDataLog.size()-1))) {
+                    resolution.setText("" + (nanotime - Long.parseLong(nanotimeDataLog.get(nanotimeDataLog.size() - 1))) / 1000000);
+                }
                 illumiLog.add(String.valueOf(lx));
                 timeDataLog.add(String.valueOf(millistime));
                 nanotimeDataLog.add(String.valueOf(nanotime));
@@ -398,7 +403,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             return "nexus7-2013-haida";
         } else if (macAddress.equals("02:00:00:00:00:00")) {
             return "nexus7-2013-amiyoshi";
-        } else {
+        }
+        else if (macAddress.equals("fc:c2:de:bb:1a:62")) {
+            return "Galaxy-S5-atonomura";
+        }
+        else {
             return "unknown";
         }
     }
@@ -436,5 +445,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             nowTime += "" + calendar.get(Calendar.SECOND);
         }
         return nowTime;
+    }
+
+    //Long‚©‚Ç‚¤‚©‚ðŠm‚©‚ß‚é
+    static boolean isLong(String number) {
+        try {
+            Long.parseLong(number);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 }
