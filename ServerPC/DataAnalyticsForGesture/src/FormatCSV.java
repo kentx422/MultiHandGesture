@@ -119,6 +119,7 @@ public class FormatCSV {
 		//lux(ArrayList<String>) >> illumiLog(ArrayList(Double))
 		ArrayList<Double> illumiLog = new ArrayList<Double>();
 		for(int i = 0;i<lux.size();i++){
+			System.out.println(lux.get(i));
 			illumiLog.add(Double.parseDouble(lux.get(i)));
 		}
 		
@@ -332,7 +333,7 @@ public class FormatCSV {
       double lastDiff=0.0;
       ArrayList<Double> illumiMountainLog =  new ArrayList<Double>();
       illumiMountainLog.add(max);
-      for (int i=start;i<=end;i++){
+      for (int i=start;i<=end-1;i++){
     	  //System.out.println(illumiLog.get(i+1)+"-"+illumiLog.get(i));
           double diff = illumiLog.get(i+1)-illumiLog.get(i);
           if(Math.abs(diff)==0 || diff*lastDiff<0){
