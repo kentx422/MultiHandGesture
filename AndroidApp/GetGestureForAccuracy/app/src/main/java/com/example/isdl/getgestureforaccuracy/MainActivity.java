@@ -8,6 +8,7 @@ import android.hardware.SensorManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -44,8 +45,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private String subjectName;
     private SensorManager manager;
     private String gesture;
-    //version: "show version 1.0" >> "show resolution 1.0"
-    private String versionNow = "show resolutio 1.4";
+    private String imei;
+    private String udid;
+
+    //version: "show version" >> "show resolution" >> "change UDID"
+    private String versionNow = "change UDID 3.1";
 
     private int slashCount;
     private int upCount;
@@ -77,10 +81,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
-        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        macAddress = wifiInfo.getMacAddress();
-        deviceName = getDeviceName(macAddress);
+//        //macAddressの取得
+//        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+//        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+//        macAddress = wifiInfo.getMacAddress();
+//        deviceName = getDeviceNameByMacAddress(macAddress);
+
+//        //IMEIの取得
+//        TelephonyManager tm = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
+//        imei = tm.getDeviceId();
+
+        // Android IDの取得
+        udid = Settings.Secure.getString(this.getContentResolver(), Settings.System.ANDROID_ID);
+        deviceName = getDeviceNameByUDID(udid);
 
         //ボタンとテキストの設定
         state = (TextView) findViewById(R.id.state);
@@ -152,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     onoff = 0;
                     onoffbutton.setText("ON");
                     subjectName = subjectNameGet.getText().toString();
-                    sendMessage = ""+ getNowTime()+","+deviceName+","+subjectName+","+macAddress+";";
+                    sendMessage = ""+ getNowTime()+","+deviceName+","+subjectName+","+udid+";";
                     //Log.d("sendMessage", sendMessage);
                     int sendLenge = 64;
                     for(int i = 0;i<timeDataLog.size();i++){
@@ -396,7 +409,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     //--------------接続プログラム終わり
 
     //recognize device using macAddress
-    public static String getDeviceName(String macAddress) {
+    public static String getDeviceNameByMacAddress(String macAddress) {
         if (macAddress.equals("30:85:a9:2f:00:af")) {
             return "nexus7-2012-hmurakami";
         } else if (macAddress.equals("ac:22:0b:5c:8c:0c")) {
@@ -411,6 +424,26 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             return "unknown";
         }
     }
+
+    public static String getDeviceNameByUDID(String udid) {
+        if (udid.equals("a4c7b9190b6bd931")) {
+            return "nexus7-2012-hmurakami";
+        } else if (udid.equals("8e9e784548c0cb6a")) {
+            return "nexus7-2013-haida";
+        } else if (udid.equals("f7196b5116fe5f4d")) {
+            return "nexus7-2013-amiyoshi";
+        }
+        else if (udid.equals("a63f8c393f29b971")) {
+            return "Galaxy-S5-atonomura";
+        }
+        else if (udid.equals("7b2f5bfd497b875f")) {
+            return "Xperia-Z5-tyamamoto";
+        }
+        else {
+            return "unknown";
+        }
+    }
+
 
     public static String getNowTime() {
         // 時刻取得

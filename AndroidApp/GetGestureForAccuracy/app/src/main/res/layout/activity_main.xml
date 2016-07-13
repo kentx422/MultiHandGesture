@@ -111,7 +111,7 @@
         android:textSize="20dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="80dp"/>
+        android:layout_marginBottom="40dp"/>
 
     <TextView
         android:id="@+id/version"
@@ -127,7 +127,7 @@
         android:id="@+id/resolution"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="version"
+        android:text="resolution"
         android:textSize="15dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
