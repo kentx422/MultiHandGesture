@@ -118,6 +118,7 @@ public class ChatServerThread extends Thread {
 			}
 		}
 		writeCSV(filename,transformMessage);
+		recieveMessage="";
 	}
 
 	// 全員にメッセージ送信

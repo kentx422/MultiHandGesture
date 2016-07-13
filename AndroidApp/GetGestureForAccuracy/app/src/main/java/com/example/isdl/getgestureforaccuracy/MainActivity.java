@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager manager;
     private String gesture;
     //version: "show version 1.0" >> "show resolution 1.0"
-    private String versionNow = "show resolution 1.2";
+    private String versionNow = "show resolutio 1.4";
 
     private int slashCount;
     private int upCount;
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     onoff = 0;
                     onoffbutton.setText("ON");
                     subjectName = subjectNameGet.getText().toString();
-                    sendMessage = ""+ getNowTime()+","+deviceName+","+subjectName+";";
+                    sendMessage = ""+ getNowTime()+","+deviceName+","+subjectName+","+macAddress+";";
                     //Log.d("sendMessage", sendMessage);
                     int sendLenge = 64;
                     for(int i = 0;i<timeDataLog.size();i++){
@@ -404,7 +404,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         } else if (macAddress.equals("02:00:00:00:00:00")) {
             return "nexus7-2013-amiyoshi";
         }
-        else if (macAddress.equals("fc:c2:de:bb:1a:62")) {
+        else if (macAddress.equals("FC:C2:DE:BB:1A:62")) {
             return "Galaxy-S5-atonomura";
         }
         else {
