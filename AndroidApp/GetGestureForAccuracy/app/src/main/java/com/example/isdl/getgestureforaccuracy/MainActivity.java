@@ -61,16 +61,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     ArrayList<String> timeDataLog  = new ArrayList< >();
     ArrayList<String> nanotimeDataLog  = new ArrayList< >();
 
-    //IPƒAƒhƒŒƒX‚Ìw’è
+    //IPã‚¢ãƒ‰ãƒ¬ã‚¹ã®æŒ‡å®š
     private final static String IP = "172.20.11.184";
     private final static int PORT = 8080;
 
-    private Socket socket; //ƒ\ƒPƒbƒg
-    private InputStream in;     //“ü—ÍƒXƒgƒŠ[ƒ€
-    private OutputStream out;    //o—ÍƒXƒgƒŠ[ƒ€
-    private boolean error;  //ƒGƒ‰[
+    private Socket socket; //ã‚½ã‚±ãƒƒãƒˆ
+    private InputStream in;      //å…¥åŠ›ã‚¹ãƒˆãƒªãƒ¼ãƒ 
+    private OutputStream out;    //å‡ºåŠ›ã‚¹ãƒˆãƒªãƒ¼ãƒ 
+    private boolean error;  //ã‚¨ãƒ©ãƒ¼
 
-    private final Handler handler = new Handler();//ƒnƒ“ƒhƒ‰
+    private final Handler handler = new Handler();//ãƒãƒ³ãƒ‰ãƒ©
 
     private String resieveMessage;
     private String sendMessage;
@@ -81,21 +81,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        //macAddress‚Ìæ“¾
+//        //macAddressã®å–å¾—
 //        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
 //        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
 //        macAddress = wifiInfo.getMacAddress();
 //        deviceName = getDeviceNameByMacAddress(macAddress);
 
-//        //IMEI‚Ìæ“¾
+//        //IMEIã®å–å¾—
 //        TelephonyManager tm = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
 //        imei = tm.getDeviceId();
 
-        // Android ID‚Ìæ“¾
+        // Android IDã®å–å¾—
         udid = Settings.Secure.getString(this.getContentResolver(), Settings.System.ANDROID_ID);
         deviceName = getDeviceNameByUDID(udid);
 
-        //ƒ{ƒ^ƒ“‚ÆƒeƒLƒXƒg‚Ìİ’è
+        //ãƒœã‚¿ãƒ³ã¨ãƒ†ã‚­ã‚¹ãƒˆã®è¨­å®š
         state = (TextView) findViewById(R.id.state);
         nowlx = (TextView) findViewById(R.id.lx);
         onoffbutton = (Button) findViewById(R.id.onoff);
@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onStart() {
         super.onStart();
 
-        //ƒXƒŒƒbƒh‚Ì¶¬
+        //ã‚¹ãƒ¬ãƒƒãƒ‰ã®ç”Ÿæˆ
         Thread thread = new Thread() {
             public void run() {
                 try {
@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         thread.start();
     }
 
-    //ƒAƒNƒeƒBƒrƒeƒB‚Ì’â~‚ÉŒÄ‚Î‚ê‚é
+    //ã‚¢ã‚¯ãƒ†ã‚£ãƒ“ãƒ†ã‚£ã®åœæ­¢æ™‚ã«å‘¼ã°ã‚Œã‚‹
     @Override
     public void onStop() {
         super.onStop();
@@ -279,7 +279,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // ƒZƒ“ƒT[‚Ì¸“x‚ª•ÏX‚³‚ê‚é‚ÆŒÄ‚Î‚ê‚é
+        // ã‚»ãƒ³ã‚µãƒ¼ã®ç²¾åº¦ãŒå¤‰æ›´ã•ã‚Œã‚‹ã¨å‘¼ã°ã‚Œã‚‹
     }
 
 
@@ -312,25 +312,25 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-    //Ú‘±
+    //æ¥ç¶š
     private void connect(String ip, int port) {
         int size;
         String strBuf = "";
         byte[] w = new byte[1024];
         try {
-            //ƒ\ƒPƒbƒgÚ‘±
-            //addText("Ú‘±’†");
-            //connectState.setText("Ú‘±’†");
+            //ã‚½ã‚±ãƒƒãƒˆæ¥ç¶š
+            //addText("æ¥ç¶šä¸­");
+            //connectState.setText("æ¥ç¶šä¸­");
             //state.setText("connect now");
             socket = new Socket(ip, port);
             in = socket.getInputStream();
             out = socket.getOutputStream();
-            //addText("Ú‘±Š®—¹");
-            //connectState.setText("Ú‘±Š®—¹");
+            //addText("æ¥ç¶šå®Œäº†");
+            //connectState.setText("æ¥ç¶šå®Œäº†");
             //state.setText("connect end");
 
             while (socket != null && socket.isConnected()) {
-                //ƒf[ƒ^‚ÌóM
+                //ãƒ‡ãƒ¼ã‚¿ã®é€ä¿¡
                 size = in.read(w);
                 if (size <= 0) continue;
                 strBuf = new String(w, 0, size, "UTF-8");
@@ -341,34 +341,34 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     public void run() {
                         if (!error) {
                             resieveMessage = finalStrBuf;
-                            //—lX‚Èˆ—
+                            //æ§˜ã€…ãªå‡¦ç†
                             //someProcess(finalStrBuf);
 
                         } else {
-                            //addText("’ÊM¸”s‚µ‚Ü‚µ‚½");
-                            //connectState.setText("’ÊM¸”s‚µ‚Ü‚µ‚½2");
+                            //addText("é€šä¿¡å¤±æ•—ã—ã¾ã—ãŸ");
+                            //connectState.setText("é€šä¿¡å¤±æ•—ã—ã¾ã—ãŸ");
                         }
                     }
                 });
-                //ƒ‰ƒxƒ‹‚Ö‚Ì•¶š—ñ’Ç‰Á
-                //connectState.setText("óM");
+                //ãƒ©ãƒ™ãƒ«ã¸ã®æ–‡å­—åˆ—è¿½åŠ 
+                //connectState.setText("å—ä¿¡");
                 //receive.setText(""+str);
             }
         } catch (Exception e) {
-            //addText("’ÊM¸”s‚µ‚Ü‚µ‚½");
-            //connectState.setText("’ÊM¸”s‚µ‚Ü‚µ‚½\n"+e);
+            //addText("é€šä¿¡å¤±æ•—ã—ã¾ã—ãŸ");
+            //connectState.setText("é€šä¿¡å¤±æ•—ã—ã¾ã—ãŸ\n"+e);
             state.setText("connect fault");
             Log.e("error", String.valueOf(e));
         }
     }
 
     public void onServe(final String anser) {
-        //ƒXƒŒƒbƒbƒh‚Ì¶¬
+        //ã‚¹ãƒ¬ãƒƒãƒ‰ã®ç”Ÿæˆ
         Thread thread = new Thread(new Runnable() {
             public void run() {
                 error = false;
                 try {
-                    //ƒf[ƒ^‚Ì‘—M
+                    //ãƒ‡ãƒ¼ã‚¿ã®é€ä¿¡
                     if (socket != null && socket.isConnected()) {
                         //String serveTime = getNowTime();
                         //String write = serveTime +","+ deviceName+";"+anser;
@@ -380,14 +380,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 } catch (Exception e) {
                     error = true;
                 }
-                //ƒnƒ“ƒhƒ‰‚Ì¶¬
+                //ãƒãƒ³ãƒ‰ãƒ©ã®ç”Ÿæˆ
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
                         if (!error) {
                         } else {
-                            //addText("’ÊM¸”s‚µ‚Ü‚µ‚½");
-                            //connectState.setText("’ÊM¸”s‚µ‚Ü‚µ‚½2");
+                            //addText("é€šä¿¡å¤±æ•—ã—ã¾ã—ãŸ");
+                            //connectState.setText("é€šä¿¡å¤±æ•—ã—ã¾ã—ãŸ");
                         }
                     }
                 });
@@ -396,7 +396,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         thread.start();
     }
 
-    //Ø’f
+    //åˆ‡æ–­
     private void disconnect() {
         try {
             //onServe("see u");
@@ -406,7 +406,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-    //--------------Ú‘±ƒvƒƒOƒ‰ƒ€I‚í‚è
+    //--------------æ¥ç¶šãƒ—ãƒ­ã‚°ãƒ©ãƒ çµ‚ã‚ã‚Š
 
     //recognize device using macAddress
     public static String getDeviceNameByMacAddress(String macAddress) {
@@ -446,7 +446,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
     public static String getNowTime() {
-        // æ“¾
+        // æ™‚åˆ»å–å¾—
         Calendar calendar = Calendar.getInstance();
         String nowTime = "" + calendar.get(Calendar.YEAR);
         if (calendar.get(Calendar.MONTH) + 1 < 10) {
@@ -480,7 +480,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return nowTime;
     }
 
-    //Long‚©‚Ç‚¤‚©‚ğŠm‚©‚ß‚é
+    //Longã‹ã©ã†ã‹ã‚’ç¢ºã‹ã‚ã‚‹
     static boolean isLong(String number) {
         try {
             Long.parseLong(number);
