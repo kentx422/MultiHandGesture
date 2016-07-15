@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private String udid;
 
     //version: "show version" >> "show resolution" >> "change UDID"
-    private String versionNow = "change UDID 3.1";
+    private String versionNow = "change UDID 3.4";
 
     private int slashCount;
     private int upCount;
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     ArrayList<String> nanotimeDataLog  = new ArrayList< >();
 
     //IPアドレスの指定
-    private final static String IP = "172.20.11.184";
+    private final static String IP = "172.20.11.109";
     private final static int PORT = 8080;
 
     private Socket socket; //ソケット
@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
-                            sendMessage ="delete";
+                            sendMessage = timeDataLog.get(i)+","+nanotimeDataLog.get(i)+","+illumiLog.get(i)+";";;
                             onServe(sendMessage);
                             sendMessage ="";
                             break;
@@ -227,6 +227,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     gesture="";
                     state.setText(gesture);
 
+                    onServe("off,off,off;");
                 }
             }
         }
@@ -428,9 +429,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public static String getDeviceNameByUDID(String udid) {
         if (udid.equals("a4c7b9190b6bd931")) {
             return "nexus7-2012-hmurakami";
-        } else if (udid.equals("8e9e784548c0cb6a")) {
+        }
+        else if (udid.equals("8e9e784548c0cb6a")) {
             return "nexus7-2013-haida";
-        } else if (udid.equals("f7196b5116fe5f4d")) {
+        }
+        else if (udid.equals("f7196b5116fe5f4d")) {
             return "nexus7-2013-amiyoshi";
         }
         else if (udid.equals("a63f8c393f29b971")) {
@@ -438,6 +441,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         else if (udid.equals("7b2f5bfd497b875f")) {
             return "Xperia-Z5-tyamamoto";
+        }
+        else if (udid.equals("6834af3a92999f3b")) {
+            return "Galaxy-S6edge-dyamashita";
+        }
+        else if (udid.equals("b58cf0a0466b2ace")) {
+            return "Xperia-Z3-smorimura";
         }
         else {
             return "unknown";

@@ -18,15 +18,15 @@ public class FormatCSV {
 		//ファイル名の一覧を取得する
 		String readData  = "";
 		String writeData = "";
-		String filename  = "all";
+		String filename  = "all"; //(all) or ( xxx / except xxx )
+		
+		String deviceAndSubjectData = "";
 		
         //File file = new File("C:\\test");
         File file = new File("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\data");
 		File files[] = file.listFiles();
 		
-		
 		writeData += "waveCount,TotalWidth,tiltAve,deepest,class\n";
-		
 		
         //取得した一覧を表示する
         for (int i=0; i<files.length; i++) {
@@ -39,14 +39,19 @@ public class FormatCSV {
         	//filename決定
         	String[] splitEn = getFilename.split("\\\\");
         	String[] splitUnderber = splitEn[splitEn.length-1].split("_");
-        	filename += "["+splitUnderber[0]+"_"+splitUnderber[1]+"]";
+        	deviceAndSubjectData += "["+splitUnderber[0]+"_"+splitUnderber[1]+"]";
         }
         
         
-        filename = "all";
+        //filename = "all";
         //System.out.println(writeData);
         //CSVに書き込み
-        writeCSV(filename+""+getNowTime(),writeData);
+        String nowTime = getNowTime();
+        writeCSV(filename+""+nowTime,writeData);
+        //TXTに書き込み
+        writeTXT(filename+""+nowTime,deviceAndSubjectData);
+        writeTXT("list", filename+""+nowTime+"\t>>\t"+deviceAndSubjectData+"\n");
+        
 	}
 	
 	//データ解析
@@ -120,7 +125,7 @@ public class FormatCSV {
 		//lux(ArrayList<String>) >> illumiLog(ArrayList(Double))
 		ArrayList<Double> illumiLog = new ArrayList<Double>();
 		for(int i = 0;i<lux.size();i++){
-			System.out.println(lux.get(i));
+			//System.out.println(lux.get(i));
 			illumiLog.add(Double.parseDouble(lux.get(i)));
 		}
 		
@@ -183,7 +188,27 @@ public class FormatCSV {
 		return result;
 	}
 	
-	// メッセージをｃｓｖに書き込み
+	// メッセージをTXTに書き込み
+	public static void writeTXT(String filename,String message) {
+		try {
+			//String FS = File.separator;
+			// File f = new
+			// File("c:"+FS+"Users"+FS+"Kurisu"+FS+"Downloads"+FS+"pleiades"+FS+"workspace"+FS+"TestSocket"+FS+"MultiHandGestureLog("+date+").csv");
+			File f = new File("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\list\\"+filename + ".txt");
+
+			FileWriter fw = new FileWriter(f, true); // 書き込むファイル指定。（true 追記 / false 上書き）ファイルが既にあるなら、そのファイルの末尾に書き込む
+			BufferedWriter bw = new BufferedWriter(fw); // バッファクラスでfwを包んであげる
+			PrintWriter pw = new PrintWriter(bw); // さらに、PrintWriterで包む
+
+			pw.write(message);
+			pw.println();
+			pw.close(); // ファイル閉じる
+		} catch (IOException e) {
+			System.out.println("エラー：" + e);
+		}
+	}
+	
+	// メッセージをCSVに書き込み
 	public static void writeCSV(String filename,String message) {
 		//Calendar cal = Calendar.getInstance();
 		try {
