@@ -43,6 +43,7 @@ public class FormatCSV {
         }
         
         
+        filename = "all";
         //System.out.println(writeData);
         //CSVに書き込み
         writeCSV(filename+""+getNowTime(),writeData);

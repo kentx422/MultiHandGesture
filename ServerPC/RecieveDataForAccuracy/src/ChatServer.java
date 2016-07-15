@@ -17,6 +17,7 @@ public class ChatServer {
 		ServerSocket     server;//サーバソケット
 		Socket           socket;//ソケット
 		ChatServerThread thread;//スレッド
+		
 
 		startTime = System.currentTimeMillis();
 		try {

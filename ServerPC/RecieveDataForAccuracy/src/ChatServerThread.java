@@ -82,9 +82,13 @@ public class ChatServerThread extends Thread {
 	public void FormatMessage(String message){
 		String[] str = message.split(",");
 		if(str[0].equals("delete")){
-			System.out.println("transform!!");
+			//System.out.println("transform!!");
 			TransformMessage(recieveMessage);
 			recieveMessage="";
+		}
+		else if(str[0].equals("off")){
+			recieveMessage="";
+			System.out.println("reset recivemessage");
 		}
 		else{
 			recieveMessage += message+"\n"; 
@@ -99,6 +103,7 @@ public class ChatServerThread extends Thread {
 		String[] splitN = message.split("\n");
 		String[] splitSemicolon = splitN[0].split(";");
 		String[] splitComma = splitSemicolon[0].split(",");
+		System.out.println(splitComma);
 		String filename = splitComma[2]+"_"+splitComma[1]+"_"+splitComma[0]+"";
 		
 		String transformMessage = "startTime,nowTime,nanoTime,lx\n";
