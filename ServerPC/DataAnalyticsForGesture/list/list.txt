@@ -1,2 +1,26 @@
 all20160715213430	>>	[kmatsui_Galaxy-S5-atonomura][kmatsui_Galaxy-S6edge-dyamashita][kmatsui_nexus7-2012-hmurakami][kmatsui_nexus7-2013-haida][kmatsui_Xperia-Z3-smorimura][kmatsui_Xperia-Z5-tyamamoto]
 
+only20160717021804	>>	[kmatsui_Galaxy-S5-atonomura]
+
+only20160717021817	>>	[kmatsui_Galaxy-S6edge-dyamashita]
+
+only20160717021839	>>	[kmatsui_nexus7-2012-hmurakami]
+
+only20160717021946	>>	[kmatsui_nexus7-2013-haida]
+
+only20160717021957	>>	[kmatsui_Xperia-Z3-smorimura]
+
+only20160717022010	>>	[kmatsui_Xperia-Z5-tyamamoto]
+
+except20160717032917	>>	[kmatsui_Galaxy-S6edge-dyamashita][kmatsui_nexus7-2012-hmurakami][kmatsui_nexus7-2013-haida][kmatsui_Xperia-Z3-smorimura][kmatsui_Xperia-Z5-tyamamoto]
+
+except20160717032930	>>	[kmatsui_Galaxy-S5-atonomura][kmatsui_nexus7-2012-hmurakami][kmatsui_nexus7-2013-haida][kmatsui_Xperia-Z3-smorimura][kmatsui_Xperia-Z5-tyamamoto]
+
+except20160717033010	>>	[kmatsui_Galaxy-S5-atonomura][kmatsui_Galaxy-S6edge-dyamashita][kmatsui_nexus7-2013-haida][kmatsui_Xperia-Z3-smorimura][kmatsui_Xperia-Z5-tyamamoto]
+
+except20160717033022	>>	[kmatsui_Galaxy-S5-atonomura][kmatsui_Galaxy-S6edge-dyamashita][kmatsui_nexus7-2012-hmurakami][kmatsui_Xperia-Z3-smorimura][kmatsui_Xperia-Z5-tyamamoto]
+
+except20160717033049	>>	[kmatsui_Galaxy-S5-atonomura][kmatsui_Galaxy-S6edge-dyamashita][kmatsui_nexus7-2012-hmurakami][kmatsui_nexus7-2013-haida][kmatsui_Xperia-Z5-tyamamoto]
+
+except20160717033058	>>	[kmatsui_Galaxy-S5-atonomura][kmatsui_Galaxy-S6edge-dyamashita][kmatsui_nexus7-2012-hmurakami][kmatsui_nexus7-2013-haida][kmatsui_Xperia-Z3-smorimura]
+

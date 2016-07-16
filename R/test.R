@@ -1,13 +1,14 @@
 dir("K:\\github\\MultiHandGesture\\R","csv$")
-nd <- read.csv("K:\\github\\MultiHandGesture\\R\\all[kmatsui_Galaxy-S5-atonomura][kmatsui_nexus7-2012-hmurakami][kmatsui_nexus7-2013-haida][kmatsui_Xperia-Z5-tyamamoto]20160713180621.csv",header=T)
+nd <- read.csv("K:\\github\\MultiHandGesture\\R\\all20160715195743.csv",header=T)
 data <- subset(nd, class=="hide" | class=="slash" | class=="roll" | class=="up" | class=="down", select=c(1:4))
 g <- as.matrix(subset(nd, class=="hide" | class=="slash" | class=="roll" | class=="up" | class=="down", select=5))
 result.cv<-lda(data, g, CV=T)
+result.cv
 library(MASS)
 result.cv<-lda(data, g, CV=T)
-(lda.tab<- table(nd[,7],result.cv$class))
+(lda.tab<- table(nd[,5],result.cv$class))
 result.cv
-(lda.tab<- table(nd[,7],result.cv$class))
+(lda.tab<- table(nd[,5],result.cv$class))
 library(rpart)
 nt <-rpart(class~., data=nd)
 par(xpd = NA)

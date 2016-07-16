@@ -18,7 +18,7 @@ public class FormatCSV {
 		//ファイル名の一覧を取得する
 		String readData  = "";
 		String writeData = "";
-		String filename  = "all"; //(all) or ( xxx / except xxx )
+		String filename  = "except"; //(all) or (only xxx / except xxx )
 		
 		String deviceAndSubjectData = "";
 		
@@ -42,7 +42,6 @@ public class FormatCSV {
         	deviceAndSubjectData += "["+splitUnderber[0]+"_"+splitUnderber[1]+"]";
         }
         
-        
         //filename = "all";
         //System.out.println(writeData);
         //CSVに書き込み
@@ -51,6 +50,7 @@ public class FormatCSV {
         //TXTに書き込み
         writeTXT(filename+""+nowTime,deviceAndSubjectData);
         writeTXT("list", filename+""+nowTime+"\t>>\t"+deviceAndSubjectData+"\n");
+        
         
 	}
 	
