@@ -23,6 +23,10 @@ public class FormatCSV2 {
 		transformOnly(path,pathForTemp);
 		transformAll(path,pathForTemp);
 		transformExcept(path, pathForTemp);
+		transformSubject(path,pathForTemp);
+		transformExceptSubject(path,pathForTemp);
+		transformDevice(path, pathForTemp);
+		transformExceptDevice(path, pathForTemp);
 	}
 	
 	//結果を格納するファイルを作成
@@ -66,7 +70,8 @@ public class FormatCSV2 {
         	writeData += analyticsData(readData);
         	//filename決定
         	String[] splitEn = getFilename.split("\\\\");
-        	String[] splitUnderber = splitEn[splitEn.length-1].split("_");
+        	String[] splitPeriod = splitEn[splitEn.length-1].split("\\.");
+        	String[] splitUnderber = splitPeriod[0].split("_");
         	deviceAndSubjectData = splitUnderber[0]+"_"+splitUnderber[1];
         	filename = pathForTemp+"\\temp_"+deviceAndSubjectData;
         	//Fileの書き込み
@@ -101,7 +106,8 @@ public class FormatCSV2 {
         	writeData += readData;
         	//filename決定
         	String[] splitEn = getFilename.split("\\\\");
-        	String[] splitUnderber = splitEn[splitEn.length-1].split("_");
+        	String[] splitPeriod = splitEn[splitEn.length-1].split("\\.");
+        	String[] splitUnderber = splitPeriod[0].split("_");
         	subject = splitUnderber[1];
         	device  = splitUnderber[2];
         	//deviceAndSubjectData = splitUnderber[1]+"_"+splitUnderber[2];
@@ -127,12 +133,10 @@ public class FormatCSV2 {
 		ArrayList<String> devices  = new ArrayList<String>();
 		String subject = "";
 		String device  = "";
-		int subjectsNum = 0;
-		int devicesNum  = 0;
-		
+
 		writeData = "waveCount,TotalWidth,tiltAve,deepest,class\n";
 		
-		 //取得した一覧を表示する
+		//取得した一覧を表示する
         for (int i=0; i<files.length; i++) {
             String getFilename = files[i].toString();
         	//Fileを読み出し
@@ -140,25 +144,23 @@ public class FormatCSV2 {
         	writeData += readData;
         	//filename決定
         	String[] splitEn = getFilename.split("\\\\");
-        	String[] splitUnderber = splitEn[splitEn.length-1].split("_");
+        	String[] splitPeriod = splitEn[splitEn.length-1].split("\\.");
+        	String[] splitUnderber = splitPeriod[0].split("_");
         	subject = splitUnderber[1];
         	device  = splitUnderber[2];
         	if(subjects.indexOf(subject)==-1){
         		subjects.add(subject);
-        		subjectsNum++;
         	}
         	if(devices.indexOf(device)==-1){
         		devices.add(device);
-        		devicesNum++;
         	}
         }
         
-        filename = pathForAll+"\\all_"+subjectsNum+"subjects_"+devicesNum+"devices";
+        filename = pathForAll+"\\all_"+subjects.size()+"subjects_"+devices.size()+"devices";
     	//Fileの書き込み
     	writeFile(filename+".csv",writeData);
 	}
-	
-	
+		
 	public static void transformExcept(String path, String pathForTemp){
 		String pathForExcept = path+"\\except";
 		makeDirectory(pathForExcept);
@@ -194,12 +196,13 @@ public class FormatCSV2 {
         	}
         	//filename決定
         	String[] splitEn = getFilename.split("\\\\");
-        	String[] splitUnderber = splitEn[splitEn.length-1].split("_");
+        	String[] splitPeriod = splitEn[splitEn.length-1].split("\\.");
+        	String[] splitUnderber = splitPeriod[0].split("_");
         	subject = splitUnderber[1];
         	device  = splitUnderber[2];
         	filename = pathForExcept+"\\except_"+subject+"_"+device;
         	//Fileの書き込み
-        	System.out.println(i+":"+writeData.length());
+        	//System.out.println(i+":"+writeData.length());
         	writeFile(filename+".csv",writeData);
 //            String getFilename = files[i].toString();
 //        	//Fileを読み出し
@@ -221,6 +224,283 @@ public class FormatCSV2 {
         }
         
  
+	}
+	
+	
+	public static void transformSubject(String path, String pathForTemp){
+		String pathForSubject = path+"\\subject";
+		makeDirectory(pathForSubject);
+		
+		String readData  = "";
+		String writeData = "";
+		String filename  = ""; //(all) or (only xxx) or  (except xxx) or (temp xxx)
+		
+        File file = new File(pathForTemp);
+		File files[] = file.listFiles();
+		
+		
+		ArrayList<String> subjects = new ArrayList<String>();
+		ArrayList<String> devices  = new ArrayList<String>();
+		String subject = "";
+		String device  = "";
+		
+		writeData = "waveCount,TotalWidth,tiltAve,deepest,class\n";
+		
+		 //被験者数を取得
+        for (int i=0; i<files.length; i++) {
+            String getFilename = files[i].toString();
+        	//Fileを読み出し
+        	//readData = readFile(getFilename);
+        	//filename決定
+        	String[] splitEn = getFilename.split("\\\\");
+        	String[] splitUnderber = splitEn[splitEn.length-1].split("_");
+        	subject = splitUnderber[1];
+        	device  = splitUnderber[2];
+        	if(subjects.indexOf(subject)==-1){
+        		subjects.add(subject);
+        	}
+        }
+        
+        String[] subjectsData = new String[subjects.size()];
+        int[] deviceNumPerSubject = new int[subjects.size()];
+        subjects = new ArrayList<String>();
+        
+        
+        for (int i=0; i<files.length; i++) {
+            String getFilename = files[i].toString();
+        	//Fileを読み出し
+        	readData = readFile(getFilename);
+        	//filename決定
+        	String[] splitEn = getFilename.split("\\\\");
+        	String[] splitUnderber = splitEn[splitEn.length-1].split("_");
+        	subject = splitUnderber[1];
+        	device  = splitUnderber[2];
+        	
+        	if(subjects.indexOf(subject)==-1){
+        		subjects.add(subject);
+        		subjectsData[subjects.indexOf(subject)] = writeData + readData;
+        		deviceNumPerSubject[subjects.indexOf(subject)]=1;
+        	}
+        	else{
+        		subjectsData[subjects.indexOf(subject)] += readData;
+        		deviceNumPerSubject[subjects.indexOf(subject)]++;
+        	}
+        }
+        
+        for(int i=0;i<subjectsData.length;i++){
+        	//filenameの決定
+        	filename = pathForSubject+"\\subject_"+subjects.get(i)+"_"+deviceNumPerSubject[i]+"devices";
+        	//Fileの書き込み
+        	writeFile(filename+".csv",subjectsData[i]);
+        }
+	}
+	
+	
+	
+	public static void transformExceptSubject(String path, String pathForTemp){
+		String pathForExceptSubject = path+"\\exceptSubject";
+		makeDirectory(pathForExceptSubject);
+		
+		String readData  = "";
+		String writeData = "";
+		String filename  = ""; //(all) or (only xxx) or  (except xxx) or (temp xxx)
+		
+        File file = new File(pathForTemp);
+		File files[] = file.listFiles();
+		
+		
+		ArrayList<String> subjects = new ArrayList<String>();
+		ArrayList<String> devices  = new ArrayList<String>();
+		String subject = "";
+		String device  = "";
+		
+		writeData = "waveCount,TotalWidth,tiltAve,deepest,class\n";
+		
+		 //被験者数を取得
+        for (int i=0; i<files.length; i++) {
+            String getFilename = files[i].toString();
+        	//Fileを読み出し
+        	//readData = readFile(getFilename);
+        	//filename決定
+            String[] splitEn = getFilename.split("\\\\");
+        	String[] splitPeriod = splitEn[splitEn.length-1].split("\\.");
+        	String[] splitUnderber = splitPeriod[0].split("_");
+        	subject = splitUnderber[1];
+        	device  = splitUnderber[2];
+        	if(subjects.indexOf(subject)==-1){
+        		subjects.add(subject);
+        	}
+        }
+        
+        String[] exceptSubjectsData = new String[subjects.size()];
+        int[] deviceNumPerSubject = new int[subjects.size()];
+                
+        if(subjects.size()>1){
+        	for(int i=0;i<subjects.size();i++){
+        		exceptSubjectsData[i]=writeData;
+        		deviceNumPerSubject[i]=0;
+        		 for (int j=0; j<files.length; j++) {
+                     String getFilename = files[j].toString();
+                 	//Fileを読み出し
+                 	readData = readFile(getFilename);
+                 	//filename決定
+                 	String[] splitEn = getFilename.split("\\\\");
+                	String[] splitPeriod = splitEn[splitEn.length-1].split("\\.");
+                	String[] splitUnderber = splitPeriod[0].split("_");
+                	subject = splitUnderber[1];
+                	device  = splitUnderber[2];
+                	if(!subjects.get(i).equals(subject)){
+                		exceptSubjectsData[i] += readData;
+                		deviceNumPerSubject[i]++;
+                	}
+        		 }
+        	}
+            
+            for(int i=0;i<exceptSubjectsData.length;i++){
+            	//filenameの決定
+            	filename = pathForExceptSubject+"\\exceptSubject_"+subjects.get(i)+"_"+deviceNumPerSubject[i]+"devices";
+            	//Fileの書き込み
+            	writeFile(filename+".csv",exceptSubjectsData[i]);
+            }
+        }
+	}
+
+	public static void transformDevice(String path, String pathForTemp){
+		String pathForDevice = path+"\\device";
+		makeDirectory(pathForDevice);
+		
+		String readData  = "";
+		String writeData = "";
+		String filename  = ""; //(all) or (only xxx) or  (except xxx) or (temp xxx)
+		
+        File file = new File(pathForTemp);
+		File files[] = file.listFiles();
+		
+		
+		ArrayList<String> subjects = new ArrayList<String>();
+		ArrayList<String> devices  = new ArrayList<String>();
+		String subject = "";
+		String device  = "";
+		
+		writeData = "waveCount,TotalWidth,tiltAve,deepest,class\n";
+		
+		 //被験者数を取得
+        for (int i=0; i<files.length; i++) {
+            String getFilename = files[i].toString();
+        	//Fileを読み出し
+        	//readData = readFile(getFilename);
+        	//filename決定
+            String[] splitEn = getFilename.split("\\\\");
+        	String[] splitPeriod = splitEn[splitEn.length-1].split("\\.");
+        	String[] splitUnderber = splitPeriod[0].split("_");
+        	subject = splitUnderber[1];
+        	device  = splitUnderber[2];
+        	if(devices.indexOf(device)==-1){
+        		devices.add(device);
+        	}
+        }
+        
+        String[] devicesData = new String[devices.size()];
+        int[] subjectsNumPerDevice = new int[devices.size()];
+        devices = new ArrayList<String>();
+        
+        
+        for (int i=0; i<files.length; i++) {
+            String getFilename = files[i].toString();
+        	//Fileを読み出し
+        	readData = readFile(getFilename);
+        	//filename決定
+        	String[] splitEn = getFilename.split("\\\\");
+        	String[] splitPeriod = splitEn[splitEn.length-1].split("\\.");
+        	String[] splitUnderber = splitPeriod[0].split("_");
+        	subject = splitUnderber[1];
+        	device  = splitUnderber[2];
+        	
+        	if(devices.indexOf(device)==-1){
+        		devices.add(device);
+        		devicesData[devices.indexOf(device)] = writeData + readData;
+        		subjectsNumPerDevice[devices.indexOf(device)]=1;
+        	}
+        	else{
+        		devicesData[devices.indexOf(device)] += readData;
+        		subjectsNumPerDevice[devices.indexOf(device)]++;
+        	}
+        }
+        
+        for(int i=0;i<devicesData.length;i++){
+        	//filenameの決定
+        	filename = pathForDevice+"\\device_"+devices.get(i)+"_"+subjectsNumPerDevice[i]+"subjects";
+        	//Fileの書き込み
+        	writeFile(filename+".csv",devicesData[i]);
+        }
+	}
+	
+	
+	
+	public static void transformExceptDevice(String path, String pathForTemp){
+		String pathForExceptSubject = path+"\\exceptDevice";
+		makeDirectory(pathForExceptSubject);
+		
+		String readData  = "";
+		String writeData = "";
+		String filename  = ""; //(all) or (only xxx) or  (except xxx) or (temp xxx)
+		
+        File file = new File(pathForTemp);
+		File files[] = file.listFiles();
+		
+		
+		ArrayList<String> subjects = new ArrayList<String>();
+		ArrayList<String> devices  = new ArrayList<String>();
+		String subject = "";
+		String device  = "";
+		
+		writeData = "waveCount,TotalWidth,tiltAve,deepest,class\n";
+		
+		 //被験者数を取得
+        for (int i=0; i<files.length; i++) {
+            String getFilename = files[i].toString();
+        	//Fileを読み出し
+        	//readData = readFile(getFilename);
+        	//filename決定
+        	String[] splitEn = getFilename.split("\\\\");
+        	String[] splitUnderber = splitEn[splitEn.length-1].split("_");
+        	subject = splitUnderber[1];
+        	device  = splitUnderber[2];
+        	if(devices.indexOf(device)==-1){
+        		devices.add(device);
+        	}
+        }
+        
+        String[] exceptDevicesData = new String[devices.size()];
+        int[] subjectsNumPerDevice = new int[devices.size()];
+                
+        if(devices.size()>1){
+        	for(int i=0;i<devices.size();i++){
+        		exceptDevicesData[i]=writeData;
+        		subjectsNumPerDevice[i]=0;
+        		 for (int j=0; j<files.length; j++) {
+                     String getFilename = files[j].toString();
+                 	//Fileを読み出し
+                 	readData = readFile(getFilename);
+                 	//filename決定
+                	String[] splitEn = getFilename.split("\\\\");
+                	String[] splitUnderber = splitEn[splitEn.length-1].split("_");
+                	subject = splitUnderber[1];
+                	device  = splitUnderber[2];
+                	if(!devices.get(i).equals(device)){
+                		exceptDevicesData[i] += readData;
+                		subjectsNumPerDevice[i]++;
+                	}
+        		 }
+        	}
+            
+            for(int i=0;i<exceptDevicesData.length;i++){
+            	//filenameの決定
+            	filename = pathForExceptSubject+"\\exceptDevice_"+devices.get(i)+"_"+subjectsNumPerDevice[i]+"subjects";
+            	//Fileの書き込み
+            	writeFile(filename+".csv",exceptDevicesData[i]);
+            }
+        }
 	}
 	
 	
@@ -501,7 +781,7 @@ public class FormatCSV2 {
 	        } else {
 	            nowTime += "" + (calendar.get(Calendar.MONTH) + 1);
 	        }
-	        if (calendar.get(Calendar.DAY_OF_MONTH) + 1 < 10) {
+	        if (calendar.get(Calendar.DAY_OF_MONTH)  < 10) {
 	            nowTime += "0" + calendar.get(Calendar.DAY_OF_MONTH);
 	        } else {
 	            nowTime += "" + calendar.get(Calendar.DAY_OF_MONTH);
@@ -509,17 +789,17 @@ public class FormatCSV2 {
 
 	        //nowTime+="_";
 
-	        if (calendar.get(Calendar.HOUR_OF_DAY) + 1 < 10) {
+	        if (calendar.get(Calendar.HOUR_OF_DAY)  < 10) {
 	            nowTime += "0" + calendar.get(Calendar.HOUR_OF_DAY);
 	        } else {
 	            nowTime += "" + calendar.get(Calendar.HOUR_OF_DAY);
 	        }
-	        if (calendar.get(Calendar.MINUTE) + 1 < 10) {
+	        if (calendar.get(Calendar.MINUTE)  < 10) {
 	            nowTime += "0" + calendar.get(Calendar.MINUTE);
 	        } else {
 	            nowTime += "" + calendar.get(Calendar.MINUTE);
 	        }
-	        if (calendar.get(Calendar.SECOND) + 1 < 10) {
+	        if (calendar.get(Calendar.SECOND)  < 10) {
 	            nowTime += "0" + calendar.get(Calendar.SECOND);
 	        } else {
 	            nowTime += "" + calendar.get(Calendar.SECOND);
