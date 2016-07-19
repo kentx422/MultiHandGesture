@@ -1,4 +1,4 @@
-package com.example.isdl.testillumi;
+package com.example.isdl.demoappforjulymonthlylecture;
 
 import android.content.Context;
 import android.app.Activity;
@@ -12,6 +12,7 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -19,10 +20,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -55,6 +52,9 @@ public class MainActivity extends Activity implements SensorEventListener {
     private String illumiAndTimeData = "";
     private String gestureAnser = "";
     private String macAddress;
+    private String deviceName;
+    private String udid;
+
     private int imageFFRK   = R.drawable.ffrk;
     private int imageLive2D = R.drawable.katoroku;
     private int imageMARIO  = R.drawable.mario;
@@ -87,7 +87,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     //private final static String BR = System.getProperty("line.separator");
     //IPアドレスの指定k
-    private final static String IP = "172.20.11.176";
+    private final static String IP = "172.20.11.109";
     private final static int PORT = 8080;
 
     private TextView lblReceive;//受信ラベル
@@ -122,6 +122,10 @@ public class MainActivity extends Activity implements SensorEventListener {
         WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
         macAddress = wifiInfo.getMacAddress();
+
+        // Android IDの取得
+        udid = Settings.Secure.getString(this.getContentResolver(), Settings.System.ANDROID_ID);
+        deviceName = getDeviceNameByUDID(udid);
 
         // ボタンを設定
         button = (Button) findViewById(R.id.buttonA);
@@ -223,7 +227,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                     //データの送信
                     if (socket != null && socket.isConnected()) {
                         String serveTime = getNowTime();
-                        String write = serveTime +","+ macAddress +","+anser;
+                        String write = serveTime +","+ udid +","+anser;
                         byte[] w = write.getBytes("UTF8");
                         out.write(w);
                         out.flush();
@@ -807,6 +811,33 @@ public class MainActivity extends Activity implements SensorEventListener {
             calibrationAperDevice = 0.0;
             calibrationBperDevice = 1.0;
             calibrationCperDevice = 0.0;
+        }
+    }
+
+    public static String getDeviceNameByUDID(String udid) {
+        if (udid.equals("a4c7b9190b6bd931")) {
+            return "nexus7-2012-hmurakami";
+        }
+        else if (udid.equals("8e9e784548c0cb6a")) {
+            return "nexus7-2013-haida";
+        }
+        else if (udid.equals("f7196b5116fe5f4d")) {
+            return "nexus7-2013-amiyoshi";
+        }
+        else if (udid.equals("a63f8c393f29b971")) {
+            return "Galaxy-S5-atonomura";
+        }
+        else if (udid.equals("7b2f5bfd497b875f")) {
+            return "Xperia-Z5-tyamamoto";
+        }
+        else if (udid.equals("6834af3a92999f3b")) {
+            return "Galaxy-S6edge-dyamashita";
+        }
+        else if (udid.equals("b58cf0a0466b2ace")) {
+            return "Xperia-Z3-smorimura";
+        }
+        else {
+            return "unknown";
         }
     }
 }
