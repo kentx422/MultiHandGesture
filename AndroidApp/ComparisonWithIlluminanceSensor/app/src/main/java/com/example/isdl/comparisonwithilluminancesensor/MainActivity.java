@@ -10,6 +10,8 @@ import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.io.InputStream;
@@ -21,12 +23,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private TextView state;
     private TextView nowlx;
+    private Button onoffButton;
+    private Button startendButton;
 
     private SensorManager manager;
     private String deviceName;
     private String udid;
     private double lx;
     private int onoff = 0;
+    private int startend = 0;
 
     //IPアドレスの指定
     private final static String IP = "172.20.11.109";
@@ -54,10 +59,40 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         state = (TextView) findViewById(R.id.state);
         nowlx = (TextView) findViewById(R.id.lx);
         manager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        onoffButton = (Button) findViewById(R.id.onoffButton);
+        startendButton = (Button) findViewById(R.id.startendButton);
+
+        onoffButton.setOnClickListener(new clickListener());
+        startendButton.setOnClickListener(new clickListener());
     }
 
-    public void sendInterval(double interval){
+    class clickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            if (view == onoffButton) {
+                if (onoff == 0) {
+                    onoff = 1;
+                    onoffButton.setText("OFF");
+                } else {
+                    onoff = 0;
+                    onoffButton.setText("ON");
+                }
+            }
 
+            if (view == startendButton) {
+                if (startend == 0) {
+                    startend = 1;
+                    startendButton.setText("END");
+                    state.setText("SendMessage: START");
+                    onServe("START");
+                } else {
+                    startend = 0;
+                    startendButton.setText("START");
+                    state.setText("SendMessage: END");
+                    onServe("END");
+                }
+            }
+        }
     }
 
     @Override
@@ -122,13 +157,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             //ソケット接続
             //addText("接続中");
             //connectState.setText("接続中");
-            //state.setText("connect now");
+            state.setText("connect now");
             socket = new Socket(ip, port);
             in = socket.getInputStream();
             out = socket.getOutputStream();
             //addText("接続完了");
             //connectState.setText("接続完了");
-            //state.setText("connect end");
+            state.setText("connect end");
 
             while (socket != null && socket.isConnected()) {
                 //データの送信
@@ -142,12 +177,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     public void run() {
                         if (!error) {
                             recieveMessage = finalStrBuf;
-                            if(recieveMessage.equals("on")){
-                                onoff=1;
+                            state.setText("RecieveMessage: "+recieveMessage);
+                            if(recieveMessage.equals("START")){
+                                startend = 1;
+                                startendButton.setText("END");
                             }
-                            else if(recieveMessage.equals("off")){
-                                onoff=0;
+                            else if(recieveMessage.equals("END")){
+                                startend = 0;
+                                startendButton.setText("START");
                             }
+
                             //様々な処理
                             //someProcess(finalStrBuf);
 
@@ -179,6 +218,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     if (socket != null && socket.isConnected()) {
                         //String serveTime = getNowTime();
                         //String write = serveTime +","+ deviceName+";"+anser;
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
                         String write = anser;
                         byte[] w = write.getBytes("UTF8");
                         out.write(w);
