@@ -15,20 +15,16 @@ public class ChatServer {
 	static ArrayList<String> devices = new ArrayList<String>();
 	static ArrayList<ArrayList<String>> devicesTime = new ArrayList<ArrayList<String>>();
 	static ArrayList<ArrayList<String>> devicesLux = new ArrayList<ArrayList<String>>();
-	static ArrayList<Long> times = new ArrayList<Long>();
 	
 	static long startTime;
 	static long lastTime;
 	static long nowTime;
-	static long endTime;
 	
 	static String nowTimeForPath;
 	static String path;
 	
 	static String luxData;
 	static int timeCount;
-	
-	
 	
 	//開始
 	public void start(int port) {

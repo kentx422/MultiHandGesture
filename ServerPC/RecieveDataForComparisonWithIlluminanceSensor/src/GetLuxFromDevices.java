@@ -61,7 +61,7 @@ public class GetLuxFromDevices {
 			System.out.println("step: "+i);
 			
 			try{
-				Thread.sleep(3010); //3000ミリ秒Sleepする
+				Thread.sleep(3013); //3000ミリ秒Sleepする
 			}catch(InterruptedException e){}
 			
 			
