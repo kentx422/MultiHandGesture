@@ -20,7 +20,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -198,7 +197,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                     @Override
                     public void run() {
                         if (!error) {
-                            receivedMessage.setText(finalStrBuf);
+                            receivedMessage.setText("Received Message"+finalStrBuf);
                             //様々な処理
                             someProcess(finalStrBuf);
 
@@ -226,8 +225,10 @@ public class MainActivity extends Activity implements SensorEventListener {
                 try {
                     //データの送信
                     if (socket != null && socket.isConnected()) {
-                        String serveTime = getNowTime();
+                        //String serveTime = getNowTime();
+                        long serveTime = System.currentTimeMillis();
                         String write = serveTime +","+ udid +","+anser;
+                        receivedMessage.setText("Send Message: "+write);
                         byte[] w = write.getBytes("UTF8");
                         out.write(w);
                         out.flush();
@@ -280,7 +281,8 @@ public class MainActivity extends Activity implements SensorEventListener {
         @Override
         public void onClick(View view) {
             //onServe(macAddress);
-            if (view == button) {
+            if (view == button) {;
+                onServe("test");
                 if (onoff == 0) {
                     onoff = 1;
                     button.setText("OFF");
@@ -293,7 +295,8 @@ public class MainActivity extends Activity implements SensorEventListener {
                     onoff = 0;
                     button.setText("ON");
                     //sendFile(gestureAnser, illumiAndTimeData);
-                    onServe(start+",log\n,"+illumiAndTimeData);
+
+                    //onServe(start+",log\n,"+illumiAndTimeData);
                 }
             }
         }
@@ -311,9 +314,10 @@ public class MainActivity extends Activity implements SensorEventListener {
     //--
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (onoff == 1) {
+        //if (onoff == 1) {
+        if (onoff == 2) {
 
-            double lx = 0;
+        double lx = 0;
             long timeMillis = 0;
             double calibrationlx = 0;
 
@@ -545,22 +549,22 @@ public class MainActivity extends Activity implements SensorEventListener {
     public void someProcess(String strBuf){
         String[] strSplit = strBuf.split(",");
         String mission = strSplit[0];
-        if(mission.equals("ImageAllShare")){
-            imageID=Integer.parseInt(strSplit[1]);
-            testImage.setImageResource(imageList[imageID]);
-        }
-        else if(mission.equals("ImageSomeShare")){
-            if(macAddress.equals(strSplit[2])){
-                imageID=Integer.parseInt(strSplit[1]);
-                testImage.setImageResource(imageList[imageID]);
-            }
-        }
-        else if(mission.equals("ImageSomeShareFlagON")||mission.equals("")){
-            System.out.println("no problem");
-        }
-        else{
-            receivedMessage.setText("error");
-        }
+//        if(mission.equals("ImageAllShare")){
+//            imageID=Integer.parseInt(strSplit[1]);
+//            testImage.setImageResource(imageList[imageID]);
+//        }
+//        else if(mission.equals("ImageSomeShare")){
+//            if(macAddress.equals(strSplit[2])){
+//                imageID=Integer.parseInt(strSplit[1]);
+//                testImage.setImageResource(imageList[imageID]);
+//            }
+//        }
+//        else if(mission.equals("ImageSomeShareFlagON")||mission.equals("")){
+//            System.out.println("no problem");
+//        }
+//        else{
+//            receivedMessage.setText("error");
+//        }
     }
     public String judgeGesture(ArrayList<Double>illumiLog, ArrayList<Long>timeDataLog, int start, int end){
 //        int startTime = 0;

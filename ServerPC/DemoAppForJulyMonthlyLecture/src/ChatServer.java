@@ -8,23 +8,28 @@ import java.util.Calendar;
 //チャットサーバ
 public class ChatServer {
 	
-	static int  ImageSomeShareFlag=0;
-	static long ImageSomeShareTimeStamp=0;
-	static int  ImageSomeShareImageID=-1;
-	
+//	static int  ImageSomeShareFlag=0;
+//	static long ImageSomeShareTimeStamp=0;
+//	static int  ImageSomeShareImageID=-1;
+
 	static ArrayList<String> devices = new ArrayList<String>();
-	static ArrayList<ArrayList<String>> devicesTime = new ArrayList<ArrayList<String>>();
-	static ArrayList<ArrayList<String>> devicesLux = new ArrayList<ArrayList<String>>();
+//	static ArrayList<ArrayList<String>> devicesTime = new ArrayList<ArrayList<String>>();
+//	static ArrayList<ArrayList<String>> devicesLux = new ArrayList<ArrayList<String>>();
+	static ArrayList<Long> times = new ArrayList<Long>();
+	static ArrayList<String> gestres = new ArrayList<String>();
 	
 	static long startTime;
-	static long lastTime;
-	static long nowTime;
+//	static long lastTime;
+//	static long nowTime;
+	
+	static long start;
+	static long end;
 	
 	static String nowTimeForPath;
 	static String path;
 	
-	static String luxData;
-	static int timeCount;
+//	static String luxData;
+//	static int timeCount;
 	
 	//開始
 	public void start(int port) {
@@ -33,6 +38,9 @@ public class ChatServer {
 		ChatServerThread thread;//スレッド
 		
 		startTime = System.currentTimeMillis();
+		start = -1;
+		end   = -1;
+		
 		try {
 			server=new ServerSocket(port);
 			System.err.println("チャットサーバ実行開始 port>>"+port);
@@ -45,7 +53,7 @@ public class ChatServer {
 					//チャットサーバスレッド開始
 					thread=new ChatServerThread(socket);
 					thread.start();
-					thread.recieveMessage="";
+//					thread.recieveMessage="";
 					System.out.println("接続開始");
 				} catch (IOException e) {
 				}
