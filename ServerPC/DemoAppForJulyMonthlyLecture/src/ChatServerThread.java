@@ -99,7 +99,7 @@ public class ChatServerThread extends Thread {
 			ChatServer.devices.add(device);
 			
 			try{
-				Thread.sleep((long)(sleep*1.5)); //ミリ秒Sleepする
+				Thread.sleep((long)(sleep)); //ミリ秒Sleepする
 			}catch(InterruptedException e){}
 
 			System.out.println("sleep end:  "+ChatServer.devices.size());
@@ -146,7 +146,7 @@ public class ChatServerThread extends Thread {
 			ChatServer.devices.add(device);
 
 			try{
-				Thread.sleep((long)(sleep*1.5)); //ミリ秒Sleepする
+				Thread.sleep((long)(sleep)); //ミリ秒Sleepする
 			}catch(InterruptedException e){}
 
 			System.out.println("sleep end: "+ChatServer.devices.size());

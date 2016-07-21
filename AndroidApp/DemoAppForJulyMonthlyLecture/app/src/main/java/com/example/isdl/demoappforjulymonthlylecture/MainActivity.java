@@ -1,7 +1,9 @@
 package com.example.isdl.demoappforjulymonthlylecture;
 
+import android.app.Activity;
 import android.content.Context;
 import android.app.Activity;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -17,7 +19,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.BufferedWriter;
@@ -44,8 +48,11 @@ public class MainActivity extends Activity implements SensorEventListener {
     private TextView result;
     private TextView timeStamp;
     private TextView receivedMessage;
+    private TextView backNumber;
+
     private Button button;
     private ImageView testImage;
+    private RelativeLayout relativeLayout;
 
     private boolean flag = true;
     private String illumiAndTimeData = "";
@@ -118,13 +125,13 @@ public class MainActivity extends Activity implements SensorEventListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
         WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
         macAddress = wifiInfo.getMacAddress();
 
-        // Android IDの取得
-        udid = Settings.Secure.getString(this.getContentResolver(), Settings.System.ANDROID_ID);
-        deviceName = getDeviceNameByUDID(udid);
+
 
         // ボタンを設定
         button = (Button) findViewById(R.id.buttonA);
@@ -134,9 +141,16 @@ public class MainActivity extends Activity implements SensorEventListener {
         receivedMessage = (TextView) findViewById(R.id.textViewD);
         manager = (SensorManager) getSystemService(SENSOR_SERVICE);
         testImage = (ImageView) findViewById(R.id.imageViewA);
+        //relativeLayout = (RelativeLayout) findViewById(R.id.RelativeLayoutBackGround);
+        backNumber = (TextView) findViewById(R.id.textViewE);
 
+        //relativeLayout.setBackgroundColor(Color.RED);
 
         manager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+
+        // Android IDの取得
+        udid = Settings.Secure.getString(this.getContentResolver(), Settings.System.ANDROID_ID);
+        deviceName = getDeviceNameByUDID(udid);
 
 
         button.setOnClickListener(new clickListener());
@@ -308,6 +322,15 @@ public class MainActivity extends Activity implements SensorEventListener {
 
             testImage.setImageResource(imageList[(++imageID)%4]);
             if(imageID==4)imageID=0;
+            if(imageID==0){
+                relativeLayout.setBackgroundColor(Color.RED);
+            }else if(imageID==1){
+                relativeLayout.setBackgroundColor(Color.BLUE);
+            }else if(imageID==2){
+                relativeLayout.setBackgroundColor(Color.GREEN);
+            }else if(imageID==3){
+                relativeLayout.setBackgroundColor(Color.YELLOW);
+            }
         }
     }
 
@@ -818,11 +841,13 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
     }
 
-    public static String getDeviceNameByUDID(String udid) {
+    public String getDeviceNameByUDID(String udid) {
         if (udid.equals("a4c7b9190b6bd931")) {
+            // backNumber.setText("A");
             return "nexus7-2012-hmurakami";
         }
         else if (udid.equals("8e9e784548c0cb6a")) {
+            backNumber.setText("B");
             return "nexus7-2013-haida";
         }
         else if (udid.equals("f7196b5116fe5f4d")) {
