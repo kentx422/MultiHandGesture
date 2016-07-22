@@ -2,13 +2,11 @@ package com.example.isdl.demoappforjulymonthlylecture;
 
 import android.app.Activity;
 import android.content.Context;
-import android.app.Activity;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -16,11 +14,9 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
-import android.view.View;
+import android.view.MotionEvent;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -44,14 +40,12 @@ public class MainActivity extends Activity implements SensorEventListener {
     private SensorManager manager;
 
     int onoff = 0;
-    private TextView illumi;
-    private TextView result;
-    private TextView timeStamp;
-    private TextView receivedMessage;
+    //private TextView result;
+    //private TextView receivedMessage;
     private TextView backNumber;
+    //private TextView illumi;
+    private TextView printTime;
 
-    private Button button;
-    private ImageView testImage;
     private RelativeLayout relativeLayout;
 
     private boolean flag = true;
@@ -60,6 +54,8 @@ public class MainActivity extends Activity implements SensorEventListener {
     private String macAddress;
     private String deviceName;
     private String udid;
+    private String backNumberStr;
+    private int fontSize;
 
     private int imageFFRK   = R.drawable.ffrk;
     private int imageLive2D = R.drawable.katoroku;
@@ -80,7 +76,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     double dps;
     double wav;
-    int tse ;
+    int tme;
     double slp;
 
     int logThreshold;
@@ -118,7 +114,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     ArrayList<Double> illumiLog = new ArrayList<Double>();
     ArrayList<Long> timeDataLog  = new ArrayList<Long>();
-
+    ArrayList<Long> currentTimeDataLog = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,17 +130,15 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 
         // ボタンを設定
-        button = (Button) findViewById(R.id.buttonA);
-        illumi = (TextView) findViewById(R.id.textViewA);
-        result = (TextView) findViewById(R.id.textViewB);
-        timeStamp = (TextView) findViewById(R.id.textViewC);
-        receivedMessage = (TextView) findViewById(R.id.textViewD);
+        //result = (TextView) findViewById(R.id.textViewB);
+        //receivedMessage = (TextView) findViewById(R.id.textViewD);
         manager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        testImage = (ImageView) findViewById(R.id.imageViewA);
-        //relativeLayout = (RelativeLayout) findViewById(R.id.RelativeLayoutBackGround);
+        relativeLayout = (RelativeLayout) findViewById(R.id.RelativeLayoutBackGround);
         backNumber = (TextView) findViewById(R.id.textViewE);
+        //illumi = (TextView) findViewById(R.id.textViewA);
+        //printTime = (TextView) findViewById(R.id.textViewC);
 
-        //relativeLayout.setBackgroundColor(Color.RED);
+        relativeLayout.setBackgroundColor(Color.BLACK);
 
         manager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -152,12 +146,9 @@ public class MainActivity extends Activity implements SensorEventListener {
         udid = Settings.Secure.getString(this.getContentResolver(), Settings.System.ANDROID_ID);
         deviceName = getDeviceNameByUDID(udid);
 
-
-        button.setOnClickListener(new clickListener());
-
-        setCalibrationByMacAdress();
-
-        testImage.setOnClickListener(new imageClickListener());
+        //閾値
+        logThreshold = 2;
+        illumiThreshold = 0.05;
 
     }
 
@@ -211,7 +202,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                     @Override
                     public void run() {
                         if (!error) {
-                            receivedMessage.setText("Received Message"+finalStrBuf);
+                            //receivedMessage.setText("Received Message: "+finalStrBuf);
                             //様々な処理
                             someProcess(finalStrBuf);
 
@@ -232,6 +223,9 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     public void onServe(final String anser) {
+        String serveTime = getNowTime();
+        final String temp = serveTime +","+ udid +","+anser;
+        //receivedMessage.setText("Send Message: "+temp);
         //スレッッドの生成
         Thread thread = new Thread(new Runnable() {
             public void run() {
@@ -239,10 +233,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                 try {
                     //データの送信
                     if (socket != null && socket.isConnected()) {
-                        //String serveTime = getNowTime();
-                        long serveTime = System.currentTimeMillis();
-                        String write = serveTime +","+ udid +","+anser;
-                        receivedMessage.setText("Send Message: "+write);
+                        String write = temp;
                         byte[] w = write.getBytes("UTF8");
                         out.write(w);
                         out.flush();
@@ -291,57 +282,15 @@ public class MainActivity extends Activity implements SensorEventListener {
         super.onPause();
     }
 
-    class clickListener implements View.OnClickListener {
-        @Override
-        public void onClick(View view) {
-            //onServe(macAddress);
-            if (view == button) {;
-                onServe("test");
-                if (onoff == 0) {
-                    onoff = 1;
-                    button.setText("OFF");
-                    step=1;
-                    lxBuf=-1;
-                    illumiLog = new ArrayList<Double>();
-                    timeDataLog = new ArrayList<Long>();
-                    illumiAndTimeData="";
-                } else {
-                    onoff = 0;
-                    button.setText("ON");
-                    //sendFile(gestureAnser, illumiAndTimeData);
-
-                    //onServe(start+",log\n,"+illumiAndTimeData);
-                }
-            }
-        }
-    }
-
-    class imageClickListener implements View.OnClickListener {
-        @Override
-        public void onClick(View view) {
-
-            testImage.setImageResource(imageList[(++imageID)%4]);
-            if(imageID==4)imageID=0;
-            if(imageID==0){
-                relativeLayout.setBackgroundColor(Color.RED);
-            }else if(imageID==1){
-                relativeLayout.setBackgroundColor(Color.BLUE);
-            }else if(imageID==2){
-                relativeLayout.setBackgroundColor(Color.GREEN);
-            }else if(imageID==3){
-                relativeLayout.setBackgroundColor(Color.YELLOW);
-            }
-        }
-    }
-
     //--
     @Override
     public void onSensorChanged(SensorEvent event) {
         //if (onoff == 1) {
-        if (onoff == 2) {
+        if (onoff == 1) {
 
         double lx = 0;
             long timeMillis = 0;
+            long nanotTime = 0;
             double calibrationlx = 0;
 
             if (event.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
@@ -352,32 +301,27 @@ public class MainActivity extends Activity implements SensorEventListener {
             if (type == Sensor.TYPE_LIGHT) {
                 double rowlx = (event.values[0]);
                 //キャリブレーション
-                calibrationlx = (calibrationAperDevice*rowlx*rowlx+calibrationBperDevice*rowlx+calibrationCperDevice);
-                lx = calibrationlx;
-                //前後で割ってスムージング
-                if(lxBuf==-1){
-                    lxBuf=lx;
-                }
-                else{
-                    double flag = ((lx+lxBuf)/2.0);
-                    lxBuf=lx;
-                    lx = flag;
-                }
+                lx = rowlx;
                 timeMillis = System.currentTimeMillis();
+                nanotTime = System.nanoTime();
                 illumiLog.add(lx);
-                timeDataLog.add(timeMillis);
+                //timeDataLog.add(timeMillis);
+                timeDataLog.add(nanotTime);
+                currentTimeDataLog.add(timeMillis);
 
-                illumi.setText("" + lx);
+                //illumi.setText("" + lx);
                 //illumiAndTimeData += lx + "\n";
                 //illumiAndTimeData += timeMillis + "\t" + lx + "\n";
             }
 
+
+
             //step0.照度が落ちつくまで待機
             //とりあえず、データ数が揃うまで待つ
             if(illumiLog.size()<logThreshold){
-                if(!result.getText().equals("wait")) {
-                    result.setText("wait");
-                }
+//                if(!result.getText().equals("wait")) {
+//                    result.setText("wait");
+//                }
             }
 
             //step1. データが揃ったら、照度が安定するまでまつ
@@ -390,14 +334,14 @@ public class MainActivity extends Activity implements SensorEventListener {
                     illumiSum+=illumiLog.get((illumiLog.size() - 1) - i);
                 }
                 double illumiAve = (illumiSum/logThreshold);
-                if(Math.abs(illumiAve-illumiLog.get(illumiLog.size()-1))<(illumiAve*illumiThreshold)){
+                if(Math.abs(illumiLog.get(illumiLog.size() - 1) - illumiLog.get(illumiLog.size() - 2))<(illumiAve*illumiThreshold)){
                     check++;
                 }else{
                     check=0;
                 }
                 if(check>logThreshold){
                     step=2;
-                    result.setText("Ready");
+                    //result.setText("Ready");
                 }
             }
 
@@ -411,11 +355,13 @@ public class MainActivity extends Activity implements SensorEventListener {
                     illumiSum+=illumiLog.get((illumiLog.size() - 1) - i);
                 }
                 double illumiAve = (illumiSum/logThreshold);
-                if(Math.abs(illumiAve-illumiLog.get(illumiLog.size()-1))>illumiAve*illumiThreshold*2.5){
-                    step=3;
+                if(Math.abs(illumiAve-illumiLog.get(illumiLog.size()-1))>illumiAve*illumiThreshold){
+                    //step=3;
+                    step=4;
                     check=0;
-                    start=timeDataLog.size()-2;
-                    result.setText("Analyzing...");
+                    start=timeDataLog.size()-logThreshold;
+                    onServe("pairing");
+                    //result.setText("Analyzing...");
                 }
             }
             //step3. ジェスチャの終了を検知する
@@ -423,25 +369,36 @@ public class MainActivity extends Activity implements SensorEventListener {
 //                if(!result.getText().equals("Analyzing...")) {
 //                    result.setText("Analyzing...");
 //                }
-                double illumiSum = 0;
+                  double illumiSum = 0;
                 for(int i=0;i<logThreshold;i++){
                     illumiSum+=illumiLog.get((illumiLog.size() - 1) - i);
                 }
                 double illumiAve = (illumiSum/logThreshold);
-                if(Math.abs(illumiAve-illumiLog.get(start))<illumiAve*illumiThreshold*4){
+                if(Math.abs(illumiLog.get(illumiLog.size() - 1)-illumiLog.get(illumiLog.size() - 2))<illumiAve*illumiThreshold){
                     check++;
-                }else{
+                    //receivedMessage.setText(""+check);
+                }
+                else{
                     check=0;
                 }
-                if(check>logThreshold*1.2){
+//
+//                if(Math.abs(illumiAve-illumiLog.get(start))<illumiAve*illumiThreshold*10){
+//                    check++;
+//                    receivedMessage.setText(""+check);
+//                }else{
+//                    check=0;
+//                }
+                if(check>logThreshold*2){
                     step=4;
-                    end=timeDataLog.size()-logThreshold;
-                    end = judgeEnd();
+                    end=timeDataLog.size()-logThreshold*3;
+                    //end = judgeEnd();
                     //ジェスチャの判定
-                    gestureAnser = judgeGesture(illumiLog, timeDataLog, start, end);
-                    result.setText(gestureAnser);
+                    //gestureAnser = judgeGesture(illumiLog, timeDataLog, start, end);
+                    Double aveLux = (illumiLog.get(start) + illumiLog.get(end))/2;
+                    gestureAnser = extractFeature(aveLux, timeDataLog, illumiLog);
+                    //result.setText(gestureAnser);
                     //timeStamp.setText("" + timeDataLog.get(start));
-                    timeStamp.setText(testMessage);
+                    //timeStamp.setText(testMessage);
                     illumiAndTimeData += gestureAnser;
                     for(int i=start;i<=end;i++){
                         illumiAndTimeData+=","+illumiLog.get(i);
@@ -449,7 +406,8 @@ public class MainActivity extends Activity implements SensorEventListener {
                     illumiAndTimeData += "\n";
                     //sendFile(gestureAnser, illumiAndTimeData);
                     //String serveTime = getNowTime();
-                    onServe(start + "," + gestureAnser +"," + imageID+","+testMessage);
+                    //onServe(currentTimeDataLog.get(start) + "," + gestureAnser +"," + imageID+","+testMessage);
+                    //onServe(currentTimeDataLog.get(start) + "," + gestureAnser);
                 }
             }
             //step4. step2に戻るために諸々頑張る
@@ -463,6 +421,8 @@ public class MainActivity extends Activity implements SensorEventListener {
                 }
                 illumiLog = new ArrayList<Double>();
                 timeDataLog = new ArrayList<Long>();
+                currentTimeDataLog = new ArrayList<Long>();
+
                 for(int i=0;i<logThreshold;i++){
                     illumiLog.add(illumiLogBuf[i]);
                     timeDataLog.add(timeDataLogBuf[i]);
@@ -490,6 +450,54 @@ public class MainActivity extends Activity implements SensorEventListener {
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent motionEvent) {
+
+        switch (motionEvent.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                Log.d("", "ACTION_DOWN");
+                Log.d("", "EventLocation X:" + motionEvent.getX() + ",Y:" + motionEvent.getY());
+                break;
+            case MotionEvent.ACTION_UP:
+                if (onoff == 0) {
+                    onoff = 1;
+                    backNumber.setText(backNumberStr);
+                    step=1;
+                    lxBuf=-1;
+                    illumiLog = new ArrayList<Double>();
+                    timeDataLog = new ArrayList<Long>();
+                    illumiAndTimeData="";
+                    relativeLayout.setBackgroundColor(Color.BLACK);
+                    backNumber.setTextSize(fontSize);
+                } else {
+                    onoff = 0;
+                    backNumber.setText("START");
+                    backNumber.setTextSize(80);
+                    relativeLayout.setBackgroundColor(Color.BLACK);
+                    //sendFile(gestureAnser, illumiAndTimeData);
+                    //onServe(start + ",log\n," + illumiAndTimeData);
+                }
+//                printTime.setText("current: "+System.currentTimeMillis()+"  nowTime: "+getNowTime());
+//                onServe(System.currentTimeMillis()+","+" ");
+
+
+                Log.d("", "ACTION_UP");
+                long eventDuration2 = motionEvent.getEventTime() - motionEvent.getDownTime();
+                Log.d("", "eventDuration2: " +eventDuration2+" msec");
+                Log.d("", "Pressure: " + motionEvent.getPressure());
+
+                break;
+            case MotionEvent.ACTION_MOVE:
+                Log.d("", "ACTION_MOVE");
+                break;
+            case MotionEvent.ACTION_CANCEL:
+                Log.d("", "ACTION_CANCEL");
+                break;
+        }
+
+        return false;
     }
 
     private void sendFile(String fileName, String message) {
@@ -551,17 +559,17 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         //nowTime+="_";
 
-        if (calendar.get(Calendar.HOUR_OF_DAY) + 1 < 10) {
+        if (calendar.get(Calendar.HOUR_OF_DAY) < 10) {
             nowTime += "0" + calendar.get(Calendar.HOUR_OF_DAY);
         } else {
             nowTime += "" + calendar.get(Calendar.HOUR_OF_DAY);
         }
-        if (calendar.get(Calendar.MINUTE) + 1 < 10) {
+        if (calendar.get(Calendar.MINUTE)  < 10) {
             nowTime += "0" + calendar.get(Calendar.MINUTE);
         } else {
             nowTime += "" + calendar.get(Calendar.MINUTE);
         }
-        if (calendar.get(Calendar.SECOND) + 1 < 10) {
+        if (calendar.get(Calendar.SECOND)  < 10) {
             nowTime += "0" + calendar.get(Calendar.SECOND);
         } else {
             nowTime += "" + calendar.get(Calendar.SECOND);
@@ -570,8 +578,22 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     public void someProcess(String strBuf){
-        String[] strSplit = strBuf.split(",");
-        String mission = strSplit[0];
+        String[] splitSemicolon = strBuf.split(";");
+        int existFlag = 0;
+        for(int i=0;i<splitSemicolon.length;i++){
+            String[] splitConma = splitSemicolon[i].split(",");
+            if(splitConma[0].equals(deviceName)){
+
+                backNumber.setText(""+(Integer.parseInt(splitConma[1])+1));
+                relativeLayout.setBackgroundColor(Color.rgb(9,83,133));
+                existFlag = 1;
+            }
+        }
+        if(existFlag==0){
+            relativeLayout.setBackgroundColor(Color.rgb(174,16,42));
+            backNumber.setText("");
+        }
+
 //        if(mission.equals("ImageAllShare")){
 //            imageID=Integer.parseInt(strSplit[1]);
 //            testImage.setImageResource(imageList[imageID]);
@@ -634,7 +656,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         //全ジェスチャ
         if (deepness >= dps) return "HIDE";
         else if (wave >= wav) return "ROLL";
-        else if (time >= tse) {
+        else if (time >= tme) {
             if (slope >= slp) return "UP";
                 //if(St<0) gesture = 2;
             else return "DOWN";
@@ -653,43 +675,57 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     //波特化型認識
-    public double judgeWaveNum(ArrayList<Double> illumiLog, int start, int end, double max){
+    public static double judgeWaveNum(ArrayList<Double> illumiLog, int start, int end, double max){
         int waveFlag=0;
-//        for(int i = start;i<end;i++){
-//            int diff = illumiLog.get(i+1)-illumiLog.get(i);
-//            if(Math.abs(diff) > A*waveThreshold){
-//                waveFlag++;
-//            }
-//        }
-
         double lastDiff=0.0;
         ArrayList<Double> illumiMountainLog =  new ArrayList<Double>();
-        for (int i=start;i<=end;i++){
-            //illumiAndTimeData += i+"\t"+illumiLog.get(i)+"\n";
+        illumiMountainLog.add(max);
+        for (int i=start;i<=end-1;i++){
+            //System.out.println(illumiLog.get(i+1)+"-"+illumiLog.get(i));
             double diff = illumiLog.get(i+1)-illumiLog.get(i);
             if(Math.abs(diff)==0 || diff*lastDiff<0){
                 illumiMountainLog.add(illumiLog.get(i));
-//                Log.d("illumi", String.valueOf(illumiLog.get(i)));
-//                Log.d("time",String.valueOf(i));
+                //System.out.println(illumiLog.get(i));
             }
             lastDiff=diff;
         }
+        illumiMountainLog.add(max);
 
-        if(illumiMountainLog.size()==0){
+        if(illumiMountainLog.size()==2){
             return 0;
         }
 
-        double lastIllumiMountain = illumiMountainLog.get(0);
+        ArrayList<Double> illumiMountainClusterLog =  new ArrayList<Double>();
+        illumiMountainClusterLog.add(illumiMountainLog.get(0));
         for(int i=1; i<illumiMountainLog.size();i++){
-            double illumiDiff = illumiMountainLog.get(i)-lastIllumiMountain;
-//            Log.d("mountain",String.valueOf(illumiMountainLog.get(i)));
-            if(Math.abs(illumiDiff)>(double)max*0.05){
-                waveFlag++;
-//                Log.d("add",String.valueOf(illumiDiff) );
+            double diff = illumiMountainLog.get(i-1)-illumiMountainLog.get(i);
+            if(Math.abs(diff)>max*0.2){
+                illumiMountainClusterLog.add(illumiMountainLog.get(i));
             }
-            lastIllumiMountain=illumiMountainLog.get(i);
         }
-        return ((waveFlag+1)/2);
+
+//      System.out.println(illumiMountainLog);
+//      System.out.println(illumiMountainClusterLog);
+
+        double lastIllumiMountainCluster = illumiMountainClusterLog.get(0);
+        double lastIllumiDiff = 0.0;
+
+        for(int i=1; i<illumiMountainClusterLog.size();i++){
+            double illumiDiff = illumiMountainClusterLog.get(i)-lastIllumiMountainCluster;
+            //System.out.println(illumiDiff+","+lastIllumiDiff);
+            if(illumiDiff*lastIllumiDiff<0){
+                waveFlag++;
+                //System.out.println("wave");
+            }
+
+//          if(Math.abs(illumiDiff)>(double)max*0.2){
+//              waveFlag++;
+//              System.out.println("diff:"+illumiDiff);
+//          }
+            lastIllumiMountainCluster=illumiMountainLog.get(i);
+            lastIllumiDiff = illumiDiff;
+        }
+        return (waveFlag+1.0)/2.0;
     }
 
     //end特化型認識
@@ -788,7 +824,112 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
         return anser;
     }
-    //--
+    //--------
+    //特徴点抽出
+    public String extractFeature(Double aveLux,ArrayList<Long> nanoTime, ArrayList<Double> illumiLog){
+        String result = "";
+        String gesture = "";
+        int startPoint = 0;
+        int endPoint = illumiLog.size()-1;
+        int maxPoint = 0;
+        int minPoint = 0;
+
+        double waveCount = 0.0;
+        double totalWidth = 0.0;
+        double tiltAve = 0.0;
+        double deepness = 0.0;
+
+        //どれだけ変化したらstartあるいはendとみなすかの閾値
+        double threshold = aveLux*0.05;
+
+
+        //lux(ArrayList<String>) >> illumiLog(ArrayList(Double))
+//        ArrayList<Double> illumiLog = new ArrayList<Double>();
+//        for(int i = 0;i<lux.size();i++){
+//            //System.out.println(lux.get(i));
+//            illumiLog.add(Double.parseDouble(lux.get(i)));
+//        }
+
+        //start探し
+        for(int i = 1;i<illumiLog.size();i++){
+            if(Math.abs(illumiLog.get(i-1) - illumiLog.get(i)) > threshold){
+                startPoint = i-1;
+                break;
+            }
+        }
+        //end探し
+        for(int i = illumiLog.size()-2;i>=0;i--){
+            if(Math.abs(illumiLog.get(i) - illumiLog.get(i+1)) > threshold){
+                endPoint = i+1;
+                break;
+            }
+        }
+
+        //max探し
+        double max = 0.0;
+        for(int i = 0;i<illumiLog.size();i++){
+            if(illumiLog.get(i) > max){
+                maxPoint = i;
+                max = illumiLog.get(i);
+            }
+        }
+        //max探し
+        double min = aveLux;
+        for(int i = 0;i<illumiLog.size();i++){
+            if(illumiLog.get(i) < min){
+                minPoint = i;
+                min = illumiLog.get(i);
+            }
+        }
+
+
+//		System.out.println(startPoint+","+endPoint);
+//		System.out.println(illumiLog.get(startPoint)+","+illumiLog.get(endPoint));
+
+        //weveCount
+        waveCount = judgeWaveNum(illumiLog, startPoint, endPoint, aveLux);
+
+        //totalWidth msで表現
+        //totalWidth = (Double.parseDouble(nanoTime.get(endPoint)) - Double.parseDouble(nanoTime.get(startPoint)))/1000000.0;
+        totalWidth = (nanoTime.get(endPoint).doubleValue() - nanoTime.get(startPoint).doubleValue())/1000000.0;
+
+        //tiltAve
+        //double ts = (Double.parseDouble(nanoTime.get(minPoint)) - Double.parseDouble(nanoTime.get(startPoint)))/1000000.0;
+        //double te = (Double.parseDouble(nanoTime.get(endPoint)) - Double.parseDouble(nanoTime.get(minPoint)))/1000000.0;
+        //double A  = illumiLog.get(maxPoint) - illumiLog.get(minPoint);
+        double ts   = (nanoTime.get(minPoint).doubleValue() - nanoTime.get(startPoint).doubleValue())/1000000.0;
+        double te   = (nanoTime.get(endPoint).doubleValue() - nanoTime.get(minPoint).doubleValue())/1000000.0;
+        double A    = illumiLog.get(maxPoint) - illumiLog.get(minPoint);
+        tiltAve = A/ts - A/te;
+
+        //deepness
+        deepness = A / illumiLog.get(maxPoint);
+
+
+        //System.out.println(illumiLog.get(startPoint)+","+illumiLog.get(endPoint));
+        result = waveCount+","+totalWidth+","+tiltAve+","+deepness;
+        //System.out.println(result);
+        //receivedMessage.setText(result);
+
+        if(waveCount >= 2.5){
+            gesture = "roll";
+        }else if(deepness > 0.92){
+            gesture = "hide";
+        }else if(totalWidth < 425){
+            gesture = "slash";
+        }else if(tiltAve > 0.13){
+            gesture = "up";
+        }else{
+            gesture = "down";
+        }
+
+        start = startPoint;
+        end = endPoint;
+
+        return gesture;
+    }
+
+
 
     public void setCalibrationByMacAdress() {
         if (macAddress.equals("30:85:a9:2f:00:af")) {
@@ -801,7 +942,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
             dps = 0.85;
             wav = 2.0;
-            tse = 700;
+            tme = 700;
             slp = 0.45;
 
         } else if (macAddress.equals("ac:22:0b:5c:8c:0c")) {
@@ -816,7 +957,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
             dps = 0.85;
             wav = 2.0;
-            tse = 700;
+            tme = 700;
             slp = 0.45;
 
         } else if (macAddress.equals("02:00:00:00:00:00")) {
@@ -831,7 +972,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
             dps = 0.85;
             wav = 2.0;
-            tse = 700;
+            tme = 700;
             slp = 0.45;
 
         } else {
@@ -843,11 +984,13 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     public String getDeviceNameByUDID(String udid) {
         if (udid.equals("a4c7b9190b6bd931")) {
-            // backNumber.setText("A");
+            backNumberStr = "A";
+            fontSize = 300;
             return "nexus7-2012-hmurakami";
         }
         else if (udid.equals("8e9e784548c0cb6a")) {
-            backNumber.setText("B");
+            backNumberStr = "D";
+            fontSize = 300;
             return "nexus7-2013-haida";
         }
         else if (udid.equals("f7196b5116fe5f4d")) {
@@ -857,9 +1000,13 @@ public class MainActivity extends Activity implements SensorEventListener {
             return "Galaxy-S5-atonomura";
         }
         else if (udid.equals("7b2f5bfd497b875f")) {
+            backNumberStr = "C";
+            fontSize = 200;
             return "Xperia-Z5-tyamamoto";
         }
         else if (udid.equals("6834af3a92999f3b")) {
+            backNumberStr = "B";
+            fontSize = 200;
             return "Galaxy-S6edge-dyamashita";
         }
         else if (udid.equals("b58cf0a0466b2ace")) {
