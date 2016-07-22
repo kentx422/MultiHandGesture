@@ -54,7 +54,8 @@ public class ChatServerThread extends Thread {
 
 					// 読み込み
 					message = new String(w, 0, size, "UTF8");
-					System.out.println("Receive message: " + message);
+					
+					System.out.println(System.currentTimeMillis()+": Receive message: " + message);
 
 					// 様々な処理
 					//message = someProcess(message);
@@ -83,98 +84,122 @@ public class ChatServerThread extends Thread {
 
 	public void Pairing(String message){
 		String[] splitConma = message.split(",");
-		String device  = getDeviceNameByUDID(splitConma[1]);
-		long time      = Long.parseLong(splitConma[0]);
-		String gesture = splitConma[2];
-
-		int sleep = 3*1000; //3s = 3000ms 任意
-
-		System.out.println(ChatServer.start+","+ChatServer.end+","+time);
-
-		if(ChatServer.start == -1){
-			System.out.println("phase: 1");
-			ChatServer.start = time;
-			ChatServer.end   = time + sleep;
-			ChatServer.times.add(time);
-			ChatServer.devices.add(device);
-			
-			try{
-				Thread.sleep((long)(sleep)); //ミリ秒Sleepする
-			}catch(InterruptedException e){}
-
-			System.out.println("sleep end:  "+ChatServer.devices.size());
-			if(ChatServer.devices.size()>1){
-				String tempMessage ="";
-				for (int i = 0; i < ChatServer.devices.size(); i++) {
-					tempMessage += ChatServer.devices.get(i)+","+i+";";
+		
+		
+		if(splitConma[2].equals("pairing")){
+		
+			String device  = getDeviceNameByUDID(splitConma[1]);
+			//long time      = Long.parseLong(splitConma[2]);
+			long time = System.currentTimeMillis();
+			//String gesture = splitConma[3];
+	
+			int sleep = 3*1000; //3s = 3000ms 任意
+	
+			System.out.println(ChatServer.start+","+ChatServer.end+","+time);
+	
+			int tempIndex = ChatServer.devices.indexOf(device);
+			if(tempIndex!=-1){
+				ChatServer.devices.remove(tempIndex);
+				ChatServer.times.remove(tempIndex);
+			}
+			else{
+				if(ChatServer.start == -1){
+					System.out.println("phase: 1");
+					ChatServer.start = time;
+					ChatServer.end   = time + sleep;
+					ChatServer.times.add(time);
+					ChatServer.devices.add(device);
+					
+					try{
+						Thread.sleep((long)(sleep)); //ミリ秒Sleepする
+					}catch(InterruptedException e){}
+		
+					System.out.println("sleep end:  "+ChatServer.devices.size());
+					if(ChatServer.devices.size()>1){
+						String tempMessage ="";
+						for (int i = 0; i < ChatServer.devices.size(); i++) {
+							tempMessage += ChatServer.devices.get(i)+","+i+";";
+						}
+						System.out.println(tempMessage);
+						sendMessageAll(tempMessage);
+						
+						ChatServer.times = new ArrayList<Long>();
+						ChatServer.devices = new ArrayList<String>();
+					}
 				}
-				System.out.println(tempMessage);
-				sendMessageAll(tempMessage);
-			}
-		}
-
-		else if(ChatServer.start > time){
-			System.out.println("phase: 2");
-			if (ChatServer.start - sleep < time){
-				ChatServer.start = time;
-				ChatServer.end   = time + sleep;
-
-				int tempSize = ChatServer.times.size();
-				for(int i = 0; i < tempSize+1;i++){
-					if(i==ChatServer.times.size()){
-		            	ChatServer.times.add(time);
-		                ChatServer.devices.add(device);
-		            }
-					else if(ChatServer.times.get(i)>time){
-		                ChatServer.times.add(i,time);
-		                ChatServer.devices.add(i,device);
-		                
-		                break;
-		            }
-		        }
-			}
-		}
-
-		else if(ChatServer.end < time){
-			System.out.println("phase: 3");
-			ChatServer.times = new ArrayList<Long>();
-			ChatServer.devices = new ArrayList<String>();
-
-			ChatServer.start = time;
-			ChatServer.end   = time + sleep;
-			ChatServer.times.add(time);
-			ChatServer.devices.add(device);
-
-			try{
-				Thread.sleep((long)(sleep)); //ミリ秒Sleepする
-			}catch(InterruptedException e){}
-
-			System.out.println("sleep end: "+ChatServer.devices.size());
-			if(ChatServer.devices.size()>1){
-				String tempMessage ="";
-				for (int i = 0; i < ChatServer.devices.size(); i++) {
-					tempMessage += ChatServer.devices.get(i)+","+i+";";
+		
+				else if(ChatServer.start > time){
+					System.out.println("phase: 2");
+					if (ChatServer.start - sleep < time){
+						ChatServer.start = time;
+						ChatServer.end   = time + sleep;
+		
+						int tempSize = ChatServer.times.size();
+						for(int i = 0; i < tempSize+1;i++){
+							if(i==ChatServer.times.size()){
+				            	ChatServer.times.add(time);
+				                ChatServer.devices.add(device);
+				            }
+							else if(ChatServer.times.get(i)>time){
+				                ChatServer.times.add(i,time);
+				                ChatServer.devices.add(i,device);
+				                
+				                break;
+				            }
+				        }
+					}
 				}
-				sendMessageAll(tempMessage);
+		
+				else if(ChatServer.end < time){
+					System.out.println("phase: 3");
+					ChatServer.times = new ArrayList<Long>();
+					ChatServer.devices = new ArrayList<String>();
+		
+					ChatServer.start = time;
+					ChatServer.end   = time + sleep;
+					ChatServer.times.add(time);
+					ChatServer.devices.add(device);
+		
+					try{
+						Thread.sleep((long)(sleep)); //ミリ秒Sleepする
+					}catch(InterruptedException e){}
+		
+					System.out.println("sleep end: "+ChatServer.devices.size());
+					if(ChatServer.devices.size()>1){
+						String tempMessage ="";
+						for (int i = 0; i < ChatServer.devices.size(); i++) {
+							tempMessage += ChatServer.devices.get(i)+","+i+";";
+						}
+						sendMessageAll(tempMessage);
+					}
+					
+					ChatServer.times = new ArrayList<Long>();
+					ChatServer.devices = new ArrayList<String>();
+				}
+		
+				else{
+					System.out.println("phase: 4");
+					
+					int tempSize = ChatServer.times.size();
+					for(int i = 0; i < tempSize+1;i++){
+						if(i==ChatServer.times.size()){
+			            	ChatServer.times.add(time);
+			                ChatServer.devices.add(device);
+			            }
+						else if(ChatServer.times.get(i)>time){
+			                ChatServer.times.add(i,time);
+			                ChatServer.devices.add(i,device);
+			                break;
+			            }
+		
+			        }
+				}
 			}
 		}
-
-		else{
-			System.out.println("phase: 4");
+		
+		else if(splitConma[2].equals("start")){
 			
-			int tempSize = ChatServer.times.size();
-			for(int i = 0; i < tempSize+1;i++){
-				if(i==ChatServer.times.size()){
-	            	ChatServer.times.add(time);
-	                ChatServer.devices.add(device);
-	            }
-				else if(ChatServer.times.get(i)>time){
-	                ChatServer.times.add(i,time);
-	                ChatServer.devices.add(i,device);
-	                break;
-	            }
-
-	        }
+			
 		}
 
 	}
