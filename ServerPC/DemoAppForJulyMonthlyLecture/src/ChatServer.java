@@ -17,6 +17,7 @@ public class ChatServer {
 //	static ArrayList<ArrayList<String>> devicesTime = new ArrayList<ArrayList<String>>();
 //	static ArrayList<ArrayList<String>> devicesLux = new ArrayList<ArrayList<String>>();
 	static ArrayList<Long> times = new ArrayList<Long>();
+	static ArrayList<Integer> images = new ArrayList<Integer>();
 	static ArrayList<String> gestres = new ArrayList<String>();
 	
 	static long startTime;

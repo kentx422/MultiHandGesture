@@ -83,24 +83,36 @@ public class ChatServerThread extends Thread {
 	}
 
 	public void Pairing(String message){
-		String[] splitConma = message.split(",");
+		String[] splitSemicolon = message.split(";");
+		String[] splitConma = splitSemicolon[0].split(",");
 		
 		
-		if(splitConma[2].equals("pairing")){
+		if(splitConma[2].equals("image") || splitConma[2].equals("pairing")){
 		
 			String device  = getDeviceNameByUDID(splitConma[1]);
 			//long time      = Long.parseLong(splitConma[2]);
 			long time = System.currentTimeMillis();
+			int imageID = 0;
+			String gesture = "";
+			
+			if(splitConma[2].equals("image")){
+				imageID = Integer.parseInt(splitConma[3]);
+			}else if(splitConma[2].equals("pairing") ){
+				//gesture = splitConma[3];
+			}
 			//String gesture = splitConma[3];
-	
+			//int imageID = Integer.parseInt(splitConma[3]);
 			int sleep = 3*1000; //3s = 3000ms 任意
 	
 			System.out.println(ChatServer.start+","+ChatServer.end+","+time);
 	
 			int tempIndex = ChatServer.devices.indexOf(device);
 			if(tempIndex!=-1){
-				ChatServer.devices.remove(tempIndex);
-				ChatServer.times.remove(tempIndex);
+//				ChatServer.devices.remove(tempIndex);
+//				ChatServer.times.remove(tempIndex);
+//				if(splitConma[2].equals("image")){
+//					ChatServer.images.remove(tempIndex);
+//				}
 			}
 			else{
 				if(ChatServer.start == -1){
@@ -109,6 +121,10 @@ public class ChatServerThread extends Thread {
 					ChatServer.end   = time + sleep;
 					ChatServer.times.add(time);
 					ChatServer.devices.add(device);
+					if(splitConma[2].equals("image")){
+						ChatServer.images.add(imageID);
+					}
+					
 					
 					try{
 						Thread.sleep((long)(sleep)); //ミリ秒Sleepする
@@ -118,13 +134,19 @@ public class ChatServerThread extends Thread {
 					if(ChatServer.devices.size()>1){
 						String tempMessage ="";
 						for (int i = 0; i < ChatServer.devices.size(); i++) {
-							tempMessage += ChatServer.devices.get(i)+","+i+";";
+							if(splitConma[2].equals("image")){
+								tempMessage += ChatServer.devices.get(i)+","+ChatServer.images.get(i)+";";
+							}else if(splitConma[2].equals("pairing") ){
+								tempMessage += ChatServer.devices.get(i)+","+i+";";
+							}
 						}
-						System.out.println(tempMessage);
+						//tempMessage = ""+ChatServer.images.get(0);
+						System.out.println(getNowTime()+"Send message; "+tempMessage);
 						sendMessageAll(tempMessage);
 						
 						ChatServer.times = new ArrayList<Long>();
 						ChatServer.devices = new ArrayList<String>();
+						ChatServer.images = new ArrayList<Integer>();
 					}
 				}
 		
@@ -139,11 +161,16 @@ public class ChatServerThread extends Thread {
 							if(i==ChatServer.times.size()){
 				            	ChatServer.times.add(time);
 				                ChatServer.devices.add(device);
+				                if(splitConma[2].equals("image")){
+									ChatServer.images.add(imageID);
+								}
 				            }
 							else if(ChatServer.times.get(i)>time){
 				                ChatServer.times.add(i,time);
 				                ChatServer.devices.add(i,device);
-				                
+				                if(splitConma[2].equals("image")){
+									ChatServer.images.add(i,imageID);
+								}                
 				                break;
 				            }
 				        }
@@ -159,6 +186,9 @@ public class ChatServerThread extends Thread {
 					ChatServer.end   = time + sleep;
 					ChatServer.times.add(time);
 					ChatServer.devices.add(device);
+					if(splitConma[2].equals("image")){
+						ChatServer.images.add(imageID);
+					}
 		
 					try{
 						Thread.sleep((long)(sleep)); //ミリ秒Sleepする
@@ -168,13 +198,20 @@ public class ChatServerThread extends Thread {
 					if(ChatServer.devices.size()>1){
 						String tempMessage ="";
 						for (int i = 0; i < ChatServer.devices.size(); i++) {
-							tempMessage += ChatServer.devices.get(i)+","+i+";";
+							if(splitConma[2].equals("image")){
+								tempMessage += ChatServer.devices.get(i)+","+ChatServer.images.get(i)+";";
+							}else if(splitConma[2].equals("pairing") ){
+								tempMessage += ChatServer.devices.get(i)+","+i+";";
+							}
 						}
+						//tempMessage = ""+ChatServer.images.get(0);
+						System.out.println(getNowTime()+"Send message; "+tempMessage);
 						sendMessageAll(tempMessage);
 					}
 					
 					ChatServer.times = new ArrayList<Long>();
 					ChatServer.devices = new ArrayList<String>();
+					ChatServer.images = new ArrayList<Integer>();
 				}
 		
 				else{
@@ -185,10 +222,16 @@ public class ChatServerThread extends Thread {
 						if(i==ChatServer.times.size()){
 			            	ChatServer.times.add(time);
 			                ChatServer.devices.add(device);
+			                if(splitConma[2].equals("image")){
+								ChatServer.images.add(imageID);
+							}
 			            }
 						else if(ChatServer.times.get(i)>time){
 			                ChatServer.times.add(i,time);
 			                ChatServer.devices.add(i,device);
+			                if(splitConma[2].equals("image")){
+								ChatServer.images.add(i,imageID);
+							}
 			                break;
 			            }
 		
