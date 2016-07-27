@@ -1,0 +1,73 @@
+#exceptDevice
+#Galaxy-S5
+dir("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\device","csv$")
+test_data <- read.csv("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\device\\device_Galaxy-S5-atonomura_6subjects.csv",header=T)
+dir("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\device","csv$")
+train_data <- read.csv("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\exceptDevice\\exceptDevice_Galaxy-S5-atonomura_30subjects.csv",header=T)
+library(rpart)
+res <- rpart(class~. , data=train_data)
+printcp(res)
+res1<-prune(res, cp=0.01)
+res2<-predict(res1, test_data, type="class")
+table(test_data$class, res2)
+
+#Galaxy-S6edge
+dir("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\device","csv$")
+test_data <- read.csv("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\device\\device_Galaxy-S6edge-dyamashita_6subjects.csv",header=T)
+dir("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\device","csv$")
+train_data <- read.csv("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\exceptDevice\\exceptDevice_Galaxy-S6edge-dyamashita_30subjects.csv",header=T)
+library(rpart)
+res <- rpart(class~. , data=train_data)
+printcp(res)
+res1<-prune(res, cp=0.01)
+res2<-predict(res1, test_data, type="class")
+table(test_data$class, res2)
+
+
+#Xperia-Z3
+dir("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\device","csv$")
+test_data <- read.csv("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\device\\device_Xperia-Z3-smorimura_6subjects.csv",header=T)
+dir("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\device","csv$")
+train_data <- read.csv("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\exceptDevice\\exceptDevice_Xperia-Z3-smorimura_30subjects.csv",header=T)
+library(rpart)
+res <- rpart(class~. , data=train_data)
+printcp(res)
+res1<-prune(res, cp=0.01)
+res2<-predict(res1, test_data, type="class")
+table(test_data$class, res2)
+
+#Xperia-Z5
+dir("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\device","csv$")
+test_data <- read.csv("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\device\\device_Xperia-Z5-tyamamoto_6subjects.csv",header=T)
+dir("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\device","csv$")
+train_data <- read.csv("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\exceptDevice\\exceptDevice_Xperia-Z5-tyamamoto_30subjects.csv",header=T)
+library(rpart)
+res <- rpart(class~. , data=train_data)
+printcp(res)
+res1<-prune(res, cp=0.01)
+res2<-predict(res1, test_data, type="class")
+table(test_data$class, res2)
+
+#nexus7-2012
+dir("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\device","csv$")
+test_data <- read.csv("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\device\\device_nexus7-2012-hmurakami_6subjects.csv",header=T)
+dir("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\device","csv$")
+train_data <- read.csv("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\exceptDevice\\exceptDevice_nexus7-2012-hmurakami_30subjects.csv",header=T)
+library(rpart)
+res <- rpart(class~. , data=train_data)
+printcp(res)
+res1<-prune(res, cp=0.01)
+res2<-predict(res1, test_data, type="class")
+table(test_data$class, res2)
+
+#nexus7-2013
+dir("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\device","csv$")
+test_data <- read.csv("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\device\\device_nexus7-2013-haida_6subjects.csv",header=T)
+dir("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\device","csv$")
+train_data <- read.csv("K:\\github\\MultiHandGesture\\ServerPC\\DataAnalyticsForGesture\\result\\20160727190602\\exceptDevice\\exceptDevice_nexus7-2013-haida_30subjects.csv",header=T)
+library(rpart)
+res <- rpart(class~. , data=train_data)
+printcp(res)
+res1<-prune(res, cp=0.01)
+res2<-predict(res1, test_data, type="class")
+table(test_data$class, res2)

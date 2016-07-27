@@ -14,7 +14,7 @@ public class FormatCSV2 {
 //	private static String writeData = "";
 	//static String nowTime = "";
 	//static String path = "";
-	
+
 	public static void main(String[] args) {
 		String nowTime = getNowTime();
 		String path = System.getProperty("user.dir")+"\\result\\"+nowTime;
@@ -28,7 +28,7 @@ public class FormatCSV2 {
 		transformDevice(path, pathForTemp);
 		transformExceptDevice(path, pathForTemp);
 	}
-	
+
 	//結果を格納するファイルを作成
 	public static void makeDirectory(String path){
 		File newfile = new File(path);
@@ -44,20 +44,20 @@ public class FormatCSV2 {
 	public static String transformTemp(String path){
 		String pathForTemp = path+"\\temp";
 		makeDirectory(pathForTemp);
-		
+
 		String readData  = "";
 		String writeData = "";
 		String filename  = ""; //(all) or (only xxx) or  (except xxx) or (temp xxx)
-		
+
 		String deviceAndSubjectData = "";
-		
+
 		String pathForData = System.getProperty("user.dir") + "\\data";
-		
+
         File file = new File(pathForData);
 		File files[] = file.listFiles();
-		
+
 		//writeData += "waveCount,TotalWidth,tiltAve,deepest,class\n";
-	
+
         //取得した一覧を表示する
         for (int i=0; i<files.length; i++) {
             writeData="";
@@ -77,26 +77,26 @@ public class FormatCSV2 {
         	//Fileの書き込み
         	writeFile(filename+".csv",writeData);
         }
-        
+
         return pathForTemp;
 	}
-	
+
 	public static void transformOnly(String path, String pathForTemp){
 		String pathForOnly = path+"\\only";
 		makeDirectory(pathForOnly);
-		
+
 		String readData  = "";
 		String writeData = "";
 		String filename  = ""; //(all) or (only xxx) or  (except xxx) or (temp xxx)
-		
+
 		String deviceAndSubjectData = "";
 		String subject = "";
 		String device  = "";
-		
+
         File file = new File(pathForTemp);
 		File files[] = file.listFiles();
-		
-		
+
+
 		 //取得した一覧を表示する
         for (int i=0; i<files.length; i++) {
         	writeData = "waveCount,TotalWidth,tiltAve,deepest,class\n";
@@ -116,26 +116,26 @@ public class FormatCSV2 {
         	writeFile(filename+".csv",writeData);
         }
 	}
-	
+
 	public static void transformAll(String path, String pathForTemp){
 		String pathForAll = path+"\\all";
 		makeDirectory(pathForAll);
-		
+
 		String readData  = "";
 		String writeData = "";
 		String filename  = ""; //(all) or (only xxx) or  (except xxx) or (temp xxx)
-		
+
         File file = new File(pathForTemp);
 		File files[] = file.listFiles();
-		
-		
+
+
 		ArrayList<String> subjects = new ArrayList<String>();
 		ArrayList<String> devices  = new ArrayList<String>();
 		String subject = "";
 		String device  = "";
 
 		writeData = "waveCount,TotalWidth,tiltAve,deepest,class\n";
-		
+
 		//取得した一覧を表示する
         for (int i=0; i<files.length; i++) {
             String getFilename = files[i].toString();
@@ -155,33 +155,33 @@ public class FormatCSV2 {
         		devices.add(device);
         	}
         }
-        
+
         filename = pathForAll+"\\all_"+subjects.size()+"subjects_"+devices.size()+"devices";
     	//Fileの書き込み
     	writeFile(filename+".csv",writeData);
 	}
-		
+
 	public static void transformExcept(String path, String pathForTemp){
 		String pathForExcept = path+"\\except";
 		makeDirectory(pathForExcept);
-		
+
 		String readData  = "";
 		String writeData = "";
 		String filename  = ""; //(all) or (only xxx) or  (except xxx) or (temp xxx)
-		
+
         File file = new File(pathForTemp);
 		File files[] = file.listFiles();
-		
-		
+
+
 		ArrayList<String> subjects = new ArrayList<String>();
 		ArrayList<String> devices  = new ArrayList<String>();
 		String subject = "";
 		String device  = "";
 		int subjectsNum = 0;
 		int devicesNum  = 0;
-		
-		
-		
+
+
+
 		 //取得した一覧を表示する
         for (int i=0; i<files.length; i++) {
         	writeData = "waveCount,TotalWidth,tiltAve,deepest,class\n";
@@ -191,7 +191,7 @@ public class FormatCSV2 {
         			String getExceptFilename = files[i].toString();
         			//Fileを読み出し
                 	readData = readFile(getExceptFilename);
-                	writeData += readData;	
+                	writeData += readData;
         		}
         	}
         	//filename決定
@@ -222,30 +222,30 @@ public class FormatCSV2 {
 //        		devicesNum++;
 //        	}
         }
-        
- 
+
+
 	}
-	
-	
+
+
 	public static void transformSubject(String path, String pathForTemp){
 		String pathForSubject = path+"\\subject";
 		makeDirectory(pathForSubject);
-		
+
 		String readData  = "";
 		String writeData = "";
 		String filename  = ""; //(all) or (only xxx) or  (except xxx) or (temp xxx)
-		
+
         File file = new File(pathForTemp);
 		File files[] = file.listFiles();
-		
-		
+
+
 		ArrayList<String> subjects = new ArrayList<String>();
 		ArrayList<String> devices  = new ArrayList<String>();
 		String subject = "";
 		String device  = "";
-		
+
 		writeData = "waveCount,TotalWidth,tiltAve,deepest,class\n";
-		
+
 		 //被験者数を取得
         for (int i=0; i<files.length; i++) {
             String getFilename = files[i].toString();
@@ -260,12 +260,12 @@ public class FormatCSV2 {
         		subjects.add(subject);
         	}
         }
-        
+
         String[] subjectsData = new String[subjects.size()];
         int[] deviceNumPerSubject = new int[subjects.size()];
         subjects = new ArrayList<String>();
-        
-        
+
+
         for (int i=0; i<files.length; i++) {
             String getFilename = files[i].toString();
         	//Fileを読み出し
@@ -275,7 +275,7 @@ public class FormatCSV2 {
         	String[] splitUnderber = splitEn[splitEn.length-1].split("_");
         	subject = splitUnderber[1];
         	device  = splitUnderber[2];
-        	
+
         	if(subjects.indexOf(subject)==-1){
         		subjects.add(subject);
         		subjectsData[subjects.indexOf(subject)] = writeData + readData;
@@ -286,7 +286,7 @@ public class FormatCSV2 {
         		deviceNumPerSubject[subjects.indexOf(subject)]++;
         	}
         }
-        
+
         for(int i=0;i<subjectsData.length;i++){
         	//filenameの決定
         	filename = pathForSubject+"\\subject_"+subjects.get(i)+"_"+deviceNumPerSubject[i]+"devices";
@@ -294,28 +294,28 @@ public class FormatCSV2 {
         	writeFile(filename+".csv",subjectsData[i]);
         }
 	}
-	
-	
-	
+
+
+
 	public static void transformExceptSubject(String path, String pathForTemp){
 		String pathForExceptSubject = path+"\\exceptSubject";
 		makeDirectory(pathForExceptSubject);
-		
+
 		String readData  = "";
 		String writeData = "";
 		String filename  = ""; //(all) or (only xxx) or  (except xxx) or (temp xxx)
-		
+
         File file = new File(pathForTemp);
 		File files[] = file.listFiles();
-		
-		
+
+
 		ArrayList<String> subjects = new ArrayList<String>();
 		ArrayList<String> devices  = new ArrayList<String>();
 		String subject = "";
 		String device  = "";
-		
+
 		writeData = "waveCount,TotalWidth,tiltAve,deepest,class\n";
-		
+
 		 //被験者数を取得
         for (int i=0; i<files.length; i++) {
             String getFilename = files[i].toString();
@@ -331,10 +331,10 @@ public class FormatCSV2 {
         		subjects.add(subject);
         	}
         }
-        
+
         String[] exceptSubjectsData = new String[subjects.size()];
         int[] deviceNumPerSubject = new int[subjects.size()];
-                
+
         if(subjects.size()>1){
         	for(int i=0;i<subjects.size();i++){
         		exceptSubjectsData[i]=writeData;
@@ -355,7 +355,7 @@ public class FormatCSV2 {
                 	}
         		 }
         	}
-            
+
             for(int i=0;i<exceptSubjectsData.length;i++){
             	//filenameの決定
             	filename = pathForExceptSubject+"\\exceptSubject_"+subjects.get(i)+"_"+deviceNumPerSubject[i]+"devices";
@@ -368,22 +368,22 @@ public class FormatCSV2 {
 	public static void transformDevice(String path, String pathForTemp){
 		String pathForDevice = path+"\\device";
 		makeDirectory(pathForDevice);
-		
+
 		String readData  = "";
 		String writeData = "";
 		String filename  = ""; //(all) or (only xxx) or  (except xxx) or (temp xxx)
-		
+
         File file = new File(pathForTemp);
 		File files[] = file.listFiles();
-		
-		
+
+
 		ArrayList<String> subjects = new ArrayList<String>();
 		ArrayList<String> devices  = new ArrayList<String>();
 		String subject = "";
 		String device  = "";
-		
+
 		writeData = "waveCount,TotalWidth,tiltAve,deepest,class\n";
-		
+
 		 //被験者数を取得
         for (int i=0; i<files.length; i++) {
             String getFilename = files[i].toString();
@@ -399,12 +399,12 @@ public class FormatCSV2 {
         		devices.add(device);
         	}
         }
-        
+
         String[] devicesData = new String[devices.size()];
         int[] subjectsNumPerDevice = new int[devices.size()];
         devices = new ArrayList<String>();
-        
-        
+
+
         for (int i=0; i<files.length; i++) {
             String getFilename = files[i].toString();
         	//Fileを読み出し
@@ -415,7 +415,7 @@ public class FormatCSV2 {
         	String[] splitUnderber = splitPeriod[0].split("_");
         	subject = splitUnderber[1];
         	device  = splitUnderber[2];
-        	
+
         	if(devices.indexOf(device)==-1){
         		devices.add(device);
         		devicesData[devices.indexOf(device)] = writeData + readData;
@@ -426,7 +426,7 @@ public class FormatCSV2 {
         		subjectsNumPerDevice[devices.indexOf(device)]++;
         	}
         }
-        
+
         for(int i=0;i<devicesData.length;i++){
         	//filenameの決定
         	filename = pathForDevice+"\\device_"+devices.get(i)+"_"+subjectsNumPerDevice[i]+"subjects";
@@ -434,46 +434,47 @@ public class FormatCSV2 {
         	writeFile(filename+".csv",devicesData[i]);
         }
 	}
-	
-	
-	
+
+
+
 	public static void transformExceptDevice(String path, String pathForTemp){
 		String pathForExceptSubject = path+"\\exceptDevice";
 		makeDirectory(pathForExceptSubject);
-		
+
 		String readData  = "";
 		String writeData = "";
 		String filename  = ""; //(all) or (only xxx) or  (except xxx) or (temp xxx)
-		
+
         File file = new File(pathForTemp);
 		File files[] = file.listFiles();
-		
-		
+
+
 		ArrayList<String> subjects = new ArrayList<String>();
 		ArrayList<String> devices  = new ArrayList<String>();
 		String subject = "";
 		String device  = "";
-		
+
 		writeData = "waveCount,TotalWidth,tiltAve,deepest,class\n";
-		
+
 		 //被験者数を取得
         for (int i=0; i<files.length; i++) {
             String getFilename = files[i].toString();
         	//Fileを読み出し
         	//readData = readFile(getFilename);
         	//filename決定
-        	String[] splitEn = getFilename.split("\\\\");
-        	String[] splitUnderber = splitEn[splitEn.length-1].split("_");
+            String[] splitEn = getFilename.split("\\\\");
+        	String[] splitPeriod = splitEn[splitEn.length-1].split("\\.");
+        	String[] splitUnderber = splitPeriod[0].split("_");
         	subject = splitUnderber[1];
         	device  = splitUnderber[2];
         	if(devices.indexOf(device)==-1){
         		devices.add(device);
         	}
         }
-        
+
         String[] exceptDevicesData = new String[devices.size()];
         int[] subjectsNumPerDevice = new int[devices.size()];
-                
+
         if(devices.size()>1){
         	for(int i=0;i<devices.size();i++){
         		exceptDevicesData[i]=writeData;
@@ -483,8 +484,9 @@ public class FormatCSV2 {
                  	//Fileを読み出し
                  	readData = readFile(getFilename);
                  	//filename決定
-                	String[] splitEn = getFilename.split("\\\\");
-                	String[] splitUnderber = splitEn[splitEn.length-1].split("_");
+                 	String[] splitEn = getFilename.split("\\\\");
+                	String[] splitPeriod = splitEn[splitEn.length-1].split("\\.");
+                	String[] splitUnderber = splitPeriod[0].split("_");
                 	subject = splitUnderber[1];
                 	device  = splitUnderber[2];
                 	if(!devices.get(i).equals(device)){
@@ -493,7 +495,7 @@ public class FormatCSV2 {
                 	}
         		 }
         	}
-            
+
             for(int i=0;i<exceptDevicesData.length;i++){
             	//filenameの決定
             	filename = pathForExceptSubject+"\\exceptDevice_"+devices.get(i)+"_"+subjectsNumPerDevice[i]+"subjects";
@@ -502,8 +504,8 @@ public class FormatCSV2 {
             }
         }
 	}
-	
-	
+
+
 	//データ解析
 	public static String analyticsData(String data){
 		String result = "";
@@ -512,10 +514,10 @@ public class FormatCSV2 {
 		ArrayList<String> nowTime 	= new ArrayList<>();
 		ArrayList<String> nanoTime 	= new ArrayList<>();
 		ArrayList<String> lux 		= new ArrayList<>();
-		
+
 		ArrayList<String> tempLux 	= new ArrayList<>();
 		double aveLux =0.0;
-		
+
 		String[] splitN = data.split("\n");
 		for(int i=0;i<splitN.length;i++){
 			String[] splitComma = splitN[i].split(",");
@@ -535,7 +537,7 @@ public class FormatCSV2 {
 				nanoTime 	= new ArrayList<>();
 				lux 		= new ArrayList<>();
 				gesture = firstData;
-				
+
 			}
 			else if(!gesture.equals("")){
 				startTime.add(splitComma[0]);
@@ -550,19 +552,19 @@ public class FormatCSV2 {
 			}
 		}
 		result += extractFeature(gesture,aveLux,nanoTime,lux)+"\n";
-		
+
 		return result;
 	}
-	
+
 	//特徴点抽出
 	public static String extractFeature(String gesture,Double aveLux,ArrayList<String> nanoTime, ArrayList<String> lux){
 		String result = "";
-		
+
 		int startPoint = 0;
 		int endPoint = lux.size()-1;
 		int maxPoint = 0;
 		int minPoint = 0;
-		
+
 		double waveCount = 0.0;
 		double totalWidth = 0.0;
 		double tiltAve = 0.0;
@@ -570,15 +572,15 @@ public class FormatCSV2 {
 
 		//どれだけ変化したらstartあるいはendとみなすかの閾値
 		double threshold = aveLux*0.05;
-		
-		
+
+
 		//lux(ArrayList<String>) >> illumiLog(ArrayList(Double))
 		ArrayList<Double> illumiLog = new ArrayList<Double>();
 		for(int i = 0;i<lux.size();i++){
 			//System.out.println(lux.get(i));
 			illumiLog.add(Double.parseDouble(lux.get(i)));
 		}
-		
+
 		//start探し
 		for(int i = 1;i<lux.size();i++){
 			if(Math.abs(illumiLog.get(i-1) - illumiLog.get(i)) > threshold){
@@ -593,7 +595,7 @@ public class FormatCSV2 {
 				break;
 			}
 		}
-		
+
 		//max探し
 		double max = 0.0;
 		for(int i = 0;i<lux.size();i++){
@@ -610,35 +612,35 @@ public class FormatCSV2 {
 				min = illumiLog.get(i);
 			}
 		}
-		
-		
+
+
 //		System.out.println(startPoint+","+endPoint);
 //		System.out.println(illumiLog.get(startPoint)+","+illumiLog.get(endPoint));
-		
+
 		//weveCount
 		waveCount = judgeWaveNum(illumiLog, startPoint, endPoint, aveLux);
-		
+
 		//totalWidth msで表現
 		totalWidth = (Double.parseDouble(nanoTime.get(endPoint)) - Double.parseDouble(nanoTime.get(startPoint)))/1000000.0;
-		
+
 		//tiltAve
 		double ts = (Double.parseDouble(nanoTime.get(minPoint)) - Double.parseDouble(nanoTime.get(startPoint)))/1000000.0;
 		double te = (Double.parseDouble(nanoTime.get(endPoint)) - Double.parseDouble(nanoTime.get(minPoint)))/1000000.0;
 		double A  = illumiLog.get(maxPoint) - illumiLog.get(minPoint);
 		tiltAve = A/ts - A/te;
-		
+
 		//deepness
 		deepness = A / illumiLog.get(maxPoint);
-		
-		
+
+
 		//System.out.println(illumiLog.get(startPoint)+","+illumiLog.get(endPoint));
 		result = waveCount+","+totalWidth+","+tiltAve+","+deepness+","+gesture;
 		//System.out.println(result);
-		
+
 		return result;
 	}
-	
-	
+
+
 	// メッセージをFileに書き込み
 		public static void writeFile(String filename,String message) {
 			try {
@@ -653,7 +655,7 @@ public class FormatCSV2 {
 				System.out.println("エラー：" + e);
 			}
 		}
-		
+
 		//Fileの読み出し
 		public static String readFile(String filename) {
 	        String message = "";
@@ -665,14 +667,14 @@ public class FormatCSV2 {
 	            //読み込んだファイルを１行ずつ処理する
 	            String line;
 	            //StringTokenizer token;
-	            
+
 	            if((line=br.readLine())!=null){
 	            	message += line;
 	            }
-	            
+
 	            while ((line = br.readLine()) != null) {
 	            	message += "\n"+line;
-	            	
+
 //	                //区切り文字","で分割する
 //	                token = new StringTokenizer(line, ",");
 //	                //分割した文字を画面出力する
@@ -690,8 +692,8 @@ public class FormatCSV2 {
 	        }
 	        return message;
 	    }
-	
-	
+
+
 	// メッセージをTXTに書き込み
 	public static void writeTXT(String filename,String message) {
 		try {
@@ -711,7 +713,7 @@ public class FormatCSV2 {
 			System.out.println("エラー：" + e);
 		}
 	}
-	
+
 	// メッセージをCSVに書き込み
 	public static void writeCSV(String filename,String message) {
 		//Calendar cal = Calendar.getInstance();
@@ -732,7 +734,7 @@ public class FormatCSV2 {
 			System.out.println("エラー：" + e);
 		}
 	}
-	
+
 	//CSVの読み出し
 	public static String readCSV(String filename) {
         String message = "";
@@ -744,14 +746,14 @@ public class FormatCSV2 {
             //読み込んだファイルを１行ずつ処理する
             String line;
             //StringTokenizer token;
-            
+
             if((line=br.readLine())!=null){
             	message += line;
             }
-            
+
             while ((line = br.readLine()) != null) {
             	message += "\n"+line;
-            	
+
 //                //区切り文字","で分割する
 //                token = new StringTokenizer(line, ",");
 //
@@ -770,8 +772,8 @@ public class FormatCSV2 {
         }
         return message;
     }
-	
-	
+
+
 	 public static String getNowTime() {
 	        // 時刻取得
 	        Calendar calendar = Calendar.getInstance();
@@ -806,9 +808,9 @@ public class FormatCSV2 {
 	        }
 	        return nowTime;
 	    }
-	
-	
-	
+
+
+
 	//----------以下、ジェスチャ認識------------
 	public static String judgeGesture(ArrayList<Double>illumiLog, ArrayList<Long>timeDataLog, int start, int end){
 //      int startTime = 0;
@@ -873,7 +875,7 @@ public class FormatCSV2 {
           lastDiff=diff;
       }
       illumiMountainLog.add(max);
-      
+
       if(illumiMountainLog.size()==2){
           return 0;
       }
@@ -886,13 +888,13 @@ public class FormatCSV2 {
     		  illumiMountainClusterLog.add(illumiMountainLog.get(i));
     	  }
       }
-      
+
 //      System.out.println(illumiMountainLog);
 //      System.out.println(illumiMountainClusterLog);
-      
+
       double lastIllumiMountainCluster = illumiMountainClusterLog.get(0);
       double lastIllumiDiff = 0.0;
-      
+
       for(int i=1; i<illumiMountainClusterLog.size();i++){
           double illumiDiff = illumiMountainClusterLog.get(i)-lastIllumiMountainCluster;
           //System.out.println(illumiDiff+","+lastIllumiDiff);
@@ -900,7 +902,7 @@ public class FormatCSV2 {
         	  waveFlag++;
         	  //System.out.println("wave");
           }
-          
+
 //          if(Math.abs(illumiDiff)>(double)max*0.2){
 //              waveFlag++;
 //              System.out.println("diff:"+illumiDiff);
@@ -913,7 +915,7 @@ public class FormatCSV2 {
 
   //end特化型認識
   public static int judgeEnd(ArrayList<Double> illumiLog, int start, int end){
-	  
+
       int endPoint = end;
       double startIllumi = illumiLog.get(start);
       for(int i=endPoint;i>0;i--){

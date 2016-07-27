@@ -103,7 +103,7 @@ public class ChatServerThread extends Thread {
 		String[] splitN = message.split("\n");
 		String[] splitSemicolon = splitN[0].split(";");
 		String[] splitComma = splitSemicolon[0].split(",");
-		System.out.println(splitComma);
+		//System.out.println(splitComma);
 		String filename = splitComma[2]+"_"+splitComma[1]+"_"+splitComma[0]+"";
 		
 		String transformMessage = "startTime,nowTime,nanoTime,lx\n";
@@ -134,7 +134,7 @@ public class ChatServerThread extends Thread {
 			if (thread.isAlive())
 				thread.sendMessage(this, message);
 		}
-
+		
 		System.out.println("Send message all user:	" + message);
 		// writeCSV(message);
 	}
@@ -158,7 +158,7 @@ public class ChatServerThread extends Thread {
 			String FS = File.separator;
 			// File f = new
 			// File("c:"+FS+"Users"+FS+"Kurisu"+FS+"Downloads"+FS+"pleiades"+FS+"workspace"+FS+"TestSocket"+FS+"MultiHandGestureLog("+date+").csv");
-			File f = new File(filename + ".csv");
+			File f = new File(ChatServer.path+"\\"+filename + ".csv");
 
 			FileWriter fw = new FileWriter(f, true); // 書き込むファイル指定。ファイルが既にあるなら、そのファイルの末尾に書き込む
 			BufferedWriter bw = new BufferedWriter(fw); // バッファクラスでfwを包んであげる
