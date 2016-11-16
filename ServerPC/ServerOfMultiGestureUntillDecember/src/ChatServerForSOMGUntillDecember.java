@@ -5,7 +5,7 @@ import java.net.Socket;
 import java.util.Calendar;
 
 //チャットサーバ
-public class ChatServer {
+public class ChatServerForSOMGUntillDecember {
 	
 	static int  ImageSomeShareFlag=0;
 	static long ImageSomeShareTimeStamp=0;
@@ -20,7 +20,7 @@ public class ChatServer {
 	public void start(int port) {
 		ServerSocket     server;//サーバソケット
 		Socket           socket;//ソケット
-		ChatServerThread thread;//スレッド
+		ChatServerThreadForSOMGUntillDecember thread;//スレッド
 		
 
 		startTime = System.currentTimeMillis();
@@ -33,7 +33,7 @@ public class ChatServer {
 					socket=server.accept();
 
 					//チャットサーバスレッド開始
-					thread=new ChatServerThread(socket);
+					thread=new ChatServerThreadForSOMGUntillDecember(socket);
 					thread.start();
 					thread.recieveMessage="";
 					System.out.println("接続開始");
@@ -51,7 +51,7 @@ public class ChatServer {
 		path = System.getProperty("user.dir")+"\\result\\"+nowTimeForPath;
 		makeDirectory(path);
 		
-		ChatServer server=new ChatServer();
+		ChatServerForSOMGUntillDecember server=new ChatServerForSOMGUntillDecember();
 		server.start(8080);
 	}
 	
@@ -59,7 +59,7 @@ public class ChatServer {
 	public static void makeDirectory(String path){
 		File newfile = new File(path);
 		
-	    if (newfile.mkdir()){
+	    if (newfile.mkdirs()){
 	      System.out.println(path+"の作成に成功しました");
 	    }else{
 	      System.out.println(path+"の作成に失敗しました");

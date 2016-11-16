@@ -98,7 +98,7 @@ public class ChatServerThread extends Thread {
 	public void TransformMessage(String message){
 		System.out.println("transform!!");
 		System.out.println(">>"+message);
-		long start = ChatServer.startTime;
+		long start = ChatServerForSOMGUntillDecember.startTime;
 		
 		String[] splitN = message.split("\n");
 		String[] splitSemicolon = splitN[0].split(";");
@@ -158,7 +158,7 @@ public class ChatServerThread extends Thread {
 			String FS = File.separator;
 			// File f = new
 			// File("c:"+FS+"Users"+FS+"Kurisu"+FS+"Downloads"+FS+"pleiades"+FS+"workspace"+FS+"TestSocket"+FS+"MultiHandGestureLog("+date+").csv");
-			File f = new File(ChatServer.path+"\\"+filename + ".csv");
+			File f = new File(ChatServerForSOMGUntillDecember.path+"\\"+filename + ".csv");
 
 			FileWriter fw = new FileWriter(f, true); // 書き込むファイル指定。ファイルが既にあるなら、そのファイルの末尾に書き込む
 			BufferedWriter bw = new BufferedWriter(fw); // バッファクラスでfwを包んであげる
@@ -196,12 +196,12 @@ public class ChatServerThread extends Thread {
 		//int imageID       = Integer.parseInt(strSplit[4]);
 		int imageID=-1;
 		//ImageSomeShareFlagが上がっているときに,任意の時間が過ぎていればflagを下ろす
-		if(ChatServer.ImageSomeShareFlag==1){
-			long diff = startTime- ChatServer.ImageSomeShareTimeStamp ;
+		if(ChatServerForSOMGUntillDecember.ImageSomeShareFlag==1){
+			long diff = startTime- ChatServerForSOMGUntillDecember.ImageSomeShareTimeStamp ;
 			if (diff>(long)(10000000)){
-				ChatServer.ImageSomeShareFlag=0;
-				ChatServer.ImageSomeShareImageID   = -1;
-				ChatServer.ImageSomeShareTimeStamp = 0;
+				ChatServerForSOMGUntillDecember.ImageSomeShareFlag=0;
+				ChatServerForSOMGUntillDecember.ImageSomeShareImageID   = -1;
+				ChatServerForSOMGUntillDecember.ImageSomeShareTimeStamp = 0;
 				System.out.println("*+*+*+*+*+*+*+*++*+*+*+*\n*+*+*+*+*+*+*+*++*+*+*+*\nImageSomeShareFlag OFF\n*+*+*+*+*+*+*+*++*+*+*+*\n*+*+*+*+*+*+*+*++*+*+*+*");
 			}
 		}
@@ -283,17 +283,17 @@ public class ChatServerThread extends Thread {
 		}
 		// 前回がHIDEのとき
 		else if (device[deviceIDBuf].getGesture()[lastTimes].equals("HIDE")) {
-			ChatServer.ImageSomeShareFlag = 1;
-			ChatServer.ImageSomeShareImageID = device[deviceIDBuf].getImageID()[lastTimes];
-			ChatServer.ImageSomeShareTimeStamp = device[deviceIDBuf]
+			ChatServerForSOMGUntillDecember.ImageSomeShareFlag = 1;
+			ChatServerForSOMGUntillDecember.ImageSomeShareImageID = device[deviceIDBuf].getImageID()[lastTimes];
+			ChatServerForSOMGUntillDecember.ImageSomeShareTimeStamp = device[deviceIDBuf]
 					.getStartTime()[lastTimes];
 			System.out.println("ImageSomeShareFlag ON");
-			return "ImageSomeShareFlagON," + ChatServer.ImageSomeShareImageID
+			return "ImageSomeShareFlagON," + ChatServerForSOMGUntillDecember.ImageSomeShareImageID
 					+ "," + macAddress;
 		}
 		// 誰かがHIDE&SLASHをしているとき
-		else if (ChatServer.ImageSomeShareFlag == 1) {
-			return "ImageSomeShare," + ChatServer.ImageSomeShareImageID + ","
+		else if (ChatServerForSOMGUntillDecember.ImageSomeShareFlag == 1) {
+			return "ImageSomeShare," + ChatServerForSOMGUntillDecember.ImageSomeShareImageID + ","
 					+ macAddress;
 		}
 

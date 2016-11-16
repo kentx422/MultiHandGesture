@@ -448,6 +448,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         else if (udid.equals("b58cf0a0466b2ace")) {
             return "Xperia-Z3-smorimura";
         }
+        else if (udid.equals("624cb5ad4c5529b4")) {
+            return "P9_Lite-kmatsui";
+        }
         else {
             return "unknown";
         }
