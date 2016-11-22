@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private String versionNow = "4.5 (Send illuminance data)";
 
     //IPアドレスの指定
-    private static String IP = "172.20.11.175";
+    private static String IP = "172.20.11.223";
     private final static int PORT = 8080;
 
     private Socket socket; //ソケット

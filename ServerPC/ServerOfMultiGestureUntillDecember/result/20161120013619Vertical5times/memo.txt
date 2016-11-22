@@ -1,0 +1,6 @@
+bottom to   top
+bottom up   top
+bottom down top
+top    to   bottom
+top    up   bottom
+top    down bottom

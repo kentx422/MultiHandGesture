@@ -100,7 +100,8 @@ public class ChatServerThreadForSOMGUntillDecember extends Thread {
 			udid = splitComma[1];
 			String deviceName = getDeviceNameByUDID(udid);
 			String operator = splitComma[2];
-			if(operator.equals("connect")){
+			
+			if(operator.equals("connect")){	
 				ArrayList<Double> lxLog = new ArrayList<>();
 			    ArrayList<Long> timeLog = new ArrayList<>();
 				long diffTime = System.currentTimeMillis() - ChatServerForSOMGUntillDecember.startTime;
@@ -129,18 +130,26 @@ public class ChatServerThreadForSOMGUntillDecember extends Thread {
 				File files[] = file.listFiles();
 				String readData="";
 				String filename = files.length +"devices_"+getNowTime();
+				String tempData[] = new String[files.length];
 				
 				for (int j=0; j<files.length; j++) {
 					 String getFilename = files[j].toString();
 					 //System.out.println(getFilename);
 					 //Fileを読み出し
+					 //tempData[j] += readFile(getFilename)+"\n";
 					 readData += readFile(getFilename)+"\n";
-				 }
+				}
+
 				writeCSV(filename,readData);
+				
+				
+				//pathを変更
+				ChatServerForSOMGUntillDecember.path = System.getProperty("user.dir")+"\\result\\"+getNowTime();
+				
 			}
 			else if(operator.equals("setTime")){
 				long diffTime = System.currentTimeMillis() - ChatServerForSOMGUntillDecember.startTime;
-				sendMessageAll(udid+",replySetTime,"+deviceName+","+String.valueOf(diffTime));
+				sendMessageAll("replySetTime,"+deviceName+","+String.valueOf(diffTime));
 			}
 			else if(operator.equals("illuminanceAndTimeData")){
 				double lx = Double.parseDouble(splitComma[3]);

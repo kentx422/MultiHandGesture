@@ -77,7 +77,6 @@ public class FormatCSV2 {
         	//Fileの書き込み
         	writeFile(filename+".csv",writeData);
         }
-
         return pathForTemp;
 	}
 
