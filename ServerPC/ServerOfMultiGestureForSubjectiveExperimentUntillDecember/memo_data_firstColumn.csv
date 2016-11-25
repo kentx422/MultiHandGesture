@@ -1,0 +1,11 @@
+Temp,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,,,,,,,,,,,,,,,,,,
+startTime,endTime,gestureTime,deepest,deepestRate,deepestTime,maxLx,maxLxTime,deepness0-10,deepness11-20,deepness21-30,deepness31-40,deepness41-50,deepness51-60,deepness61-70,deepness71-80,deepness81-90,deepness91-100,gesture,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+TempCombain,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36
+startTime,endTime,gestureTime,deepest,deepestRate,deepestTime,maxLx,maxLxTime,deepness0-10,deepness11-20,deepness21-30,deepness31-40,deepness41-50,deepness51-60,deepness61-70,deepness71-80,deepness81-90,deepness91-100,startTime,endTime,gestureTime,deepest,deepestRate,deepestTime,maxLx,maxLxTime,deepness0-10,deepness11-20,deepness21-30,deepness31-40,deepness41-50,deepness51-60,deepness61-70,deepness71-80,deepness81-90,deepness91-100,gesture
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+ExtractFromTempCombain,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,,,,
+diffStartTime,diffEndTime,RatioGestureTime,RatioDeepestRate,Device1Descent,Device1Ascent,Device1DiffDescentAscent,Device1DeepestRate,Device1Deepness0-10,Device1Deepness11-20,Device1Deepness21-30,Device1Deepness31-40,Device1Deepness41-50,Device1Deepness51-60,Device1Deepness61-70,Device1Deepness71-80,Device1Deepness81-90,Device1Deepness91-100,Device2Descent,Device2Ascent,Device2DiffDescentAscent,Device2DeepestRate,Device2Deepness0-10,Device2Deepness11-20,Device2Deepness21-30,Device2Deepness31-40,Device2Deepness41-50,Device2Deepness51-60,Device2Deepness61-70,Device2Deepness71-80,Device2Deepness81-90,Device2Deepness91-100,gesture,,,,
