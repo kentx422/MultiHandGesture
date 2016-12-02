@@ -1,0 +1,11 @@
+#testCompareUntilDecember
+dir("K:\\github\\MultiHandGesture\\ServerPC\\ServerOfMultiGestureForSubjectiveExperimentUntillDecember\\analysis\\result\\【important】20161126001905\\extractFromTempCombain","csv$")
+test_data <- read.csv("K:\\github\\MultiHandGesture\\ServerPC\\ServerOfMultiGestureForSubjectiveExperimentUntillDecember\\analysis\\result\\【important】20161126001905\\extractFromTempCombain\\tempCombain_nexus7-2013-amiyoshi_nexus7-2013-haida2.csv",header=T)
+dir("K:\\github\\MultiHandGesture\\ServerPC\\ServerOfMultiGestureForSubjectiveExperimentUntillDecember\\analysis\\result\\【important】20161126001905\\extractFromTempCombain","csv$")
+train_data <- read.csv("K:\\github\\MultiHandGesture\\ServerPC\\ServerOfMultiGestureForSubjectiveExperimentUntillDecember\\analysis\\result\\【important】20161126001905\\extractFromTempCombain\\tempCombain_nexus7-2013-amiyoshi_nexus7-2013-haida2.csv",header=T)
+library(rpart)
+res <- rpart(gesture~. , data=train_data,control = rpart.control(minsplit=1))
+printcp(res)
+res1<-prune(res, cp=0.000001)
+res2<-predict(res1, test_data, type="class")
+table(test_data$gesture, res2)
