@@ -32,38 +32,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Button setTimeButton;
     private EditText ipAddress;
     private Button connectButton;
-
-    private Button toRightButton;
-    private Button upRightButton;
-    private Button downRightButton;
-    private Button toLeftButton;
-    private Button upLeftButton;
-    private Button downLeftButton;
-    private Button toTopButton;
-    private Button upTopButton;
-    private Button downTopButton;
-    private Button toBottomButton;
-    private Button upBottomButton;
-    private Button downBottomButton;
+    private TextView requestOrder;
+    private Button orderButton;
+    private TextView deviceChar;
 
     private int onoffButtonFlag;
     private int connectButtonFlag;
+    private int orderButtonFlag;
+
     private int step = 0;
     private int start = 0;
     private int end = 0;
-
-    private int toRightButtonFlag;
-    private int upRightButtonFlag;
-    private int downRightButtonFlag;
-    private int toLeftButtonFlag;
-    private int upLeftButtonFlag;
-    private int downLeftButtonFlag;
-    private int toTopButtonFlag;
-    private int upTopButtonFlag;
-    private int downTopButtonFlag;
-    private int toBottomButtonFlag;
-    private int upBottomButtonFlag;
-    private int downBottomButtonFlag;
 
     private long timeDeviceStart;
     private long timeDeviceNow;
@@ -85,11 +64,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     ArrayList<Long> timeDataLog = new ArrayList<>();
     ArrayList<Long> nanotimeDataLog = new ArrayList<>();
 
-    //version: 0.0 (Copy from MultiGestureUntilDecember)
-    private String versionNow = "0.5 (Copy from MultiGestureUntilDecember)";
+    //version: 0.0 (Copy from MultiGestureUntilDecember) > 1.0 (Connect mobile devices)
+    private String versionNow = " 1.3 (Connect mobile devices)";
 
     //IPアドレスの指定
-    private static String IP = "172.20.11.172";
+    private static String IP = "172.20.11.175";
     private final static int PORT = 8080;
 
     private Socket socket; //ソケット
@@ -129,56 +108,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         ipAddress = (EditText)  findViewById(R.id.IPAddress);
         ipAddress.setText(IP);
         connectButton = (Button) findViewById(R.id.connectButton);
+        requestOrder = (TextView) findViewById(R.id.requestOrder);
+        orderButton = (Button) findViewById(R.id.orderButton);
+        deviceChar = (TextView) findViewById(R.id.deviceChar);
+
+        deviceChar.setText(getDeviceCharByUDID(udid));
 
         onoffButtonFlag=0;
         connectButtonFlag=0;
+        orderButtonFlag=0;
 
         manager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         onoffButton.setOnClickListener(new clickListener());
         setTimeButton.setOnClickListener(new clickListener());
         connectButton.setOnClickListener(new clickListener());
-
-
-        toRightButton = (Button) findViewById(R.id.toRButton);
-        upRightButton = (Button) findViewById(R.id.upRButton);
-        downRightButton = (Button) findViewById(R.id.downRButton);
-        toLeftButton = (Button) findViewById(R.id.toLButton);
-        upLeftButton = (Button) findViewById(R.id.upLButton);
-        downLeftButton = (Button) findViewById(R.id.downLButton);
-        toTopButton = (Button) findViewById(R.id.toTButton);
-        upTopButton = (Button) findViewById(R.id.upTButton);
-        downTopButton = (Button) findViewById(R.id.downTButton);
-        toBottomButton = (Button) findViewById(R.id.toBButton);
-        upBottomButton = (Button) findViewById(R.id.upBButton);
-        downBottomButton = (Button) findViewById(R.id.downBButton);
-
-        toRightButtonFlag=0;
-        upRightButtonFlag=0;
-        downRightButtonFlag=0;
-        toLeftButtonFlag=0;
-        upLeftButtonFlag=0;
-        downLeftButtonFlag=0;
-        toTopButtonFlag=0;
-        upTopButtonFlag=0;
-        downTopButtonFlag=0;
-        toBottomButtonFlag=0;
-        upBottomButtonFlag=0;
-        downBottomButtonFlag=0;
-
-        toRightButton.setOnClickListener(new clickListenerForGestureButton());
-        upRightButton.setOnClickListener(new clickListenerForGestureButton());
-        downRightButton.setOnClickListener(new clickListenerForGestureButton());
-        toLeftButton.setOnClickListener(new clickListenerForGestureButton());
-        upLeftButton.setOnClickListener(new clickListenerForGestureButton());
-        downLeftButton.setOnClickListener(new clickListenerForGestureButton());
-        toTopButton.setOnClickListener(new clickListenerForGestureButton());
-        upTopButton.setOnClickListener(new clickListenerForGestureButton());
-        downTopButton.setOnClickListener(new clickListenerForGestureButton());
-        toBottomButton.setOnClickListener(new clickListenerForGestureButton());
-        upBottomButton.setOnClickListener(new clickListenerForGestureButton());
-        downBottomButton.setOnClickListener(new clickListenerForGestureButton());
-
-
+        orderButton.setOnClickListener(new clickListener());
 
         //閾値
         logThreshold = 2;
@@ -356,32 +300,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 onServe("setTime");
             }
             else if(view == connectButton){
-                toRightButtonFlag=0;
-                upRightButtonFlag=0;
-                downRightButtonFlag=0;
-                toLeftButtonFlag=0;
-                upLeftButtonFlag=0;
-                downLeftButtonFlag=0;
-                toTopButtonFlag=0;
-                upTopButtonFlag=0;
-                downTopButtonFlag=0;
-                toBottomButtonFlag=0;
-                upBottomButtonFlag=0;
-                downBottomButtonFlag=0;
-
-                toRightButton.setText("to R: "+toRightButtonFlag);
-                upRightButton.setText("up R: " +upRightButtonFlag);
-                downRightButton.setText("down R: " +downRightButtonFlag);
-                toLeftButton.setText("to L: " +toLeftButtonFlag);
-                upLeftButton.setText("up L: "+upLeftButtonFlag);
-                downLeftButton.setText("down L: "+downLeftButtonFlag);
-                toTopButton.setText("to T: " +toTopButtonFlag);
-                upTopButton.setText("up T: "+upTopButtonFlag);
-                downTopButton.setText("down T: "+downTopButtonFlag);
-                toBottomButton.setText("to B: " +toBottomButtonFlag);
-                upBottomButton.setText("up B: "+upBottomButtonFlag);
-                downBottomButton.setText("down B: "+downBottomButtonFlag);
-
                 if(connectButtonFlag==0) {
                     connectButtonFlag=1;
                     connectButton.setText("DISCONNECT");
@@ -405,81 +323,39 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 } else if(connectButtonFlag == 1) {
                     connectButtonFlag = 0;
                     connectButton.setText("CONNECT");
+
+                    onoffButtonFlag = 0;
+                    onoffButton.setText("ON");
+                    illumiLog = new ArrayList<Double>();
+                    timeDataLog = new ArrayList<Long>();
+                    step=0;
+                    state.setText("Not in service");
+
+                    orderButtonFlag = 0;
+                    orderButton.setText("Start Order");
+
                     onServe("disconnect");
-                }
-                else{
-                    System.out.println("ERROR: onoffButtonFlag");
+                } else{
+                    System.out.println("ERROR: connectButtonFlag");
                 }
 
+            }
+            else if(view == orderButton){
+                if(orderButtonFlag==0) {
+                    onServe("startOrder");
+                    orderButton.setText("next Order: "+orderButtonFlag+1);
+                } else if(orderButtonFlag > 0) {
+                    onServe("nextOrder," +(orderButtonFlag+1));
+                    orderButton.setText("next Order: "+orderButtonFlag+1);
+                }else{
+                    System.out.println("ERROR: orderButtonFlag");
+                }
+                orderButtonFlag++;
             }
         }
     }
 
-    class clickListenerForGestureButton implements View.OnClickListener {
-        @Override
-        public void onClick(View view) {
-            if (view == toRightButton) {
-                toRightButtonFlag++;
-                onServe("chooseGesture,toRight" + toRightButtonFlag + "," + timeServerNow);
-                toRightButton.setText("to R: "+toRightButtonFlag);
-            }
-            else if (view == upRightButton) {
-                upRightButtonFlag++;
-                onServe("chooseGesture,upRight" + upRightButtonFlag + "," + timeServerNow);
-                upRightButton.setText("up R: " +upRightButtonFlag);
-            }
-            else if (view == downRightButton) {
-                downRightButtonFlag++;
-                onServe("chooseGesture,downRight" + downRightButtonFlag + "," + timeServerNow);
-                downRightButton.setText("down R: " +downRightButtonFlag);
-            }
-            if (view == toLeftButton) {
-                toLeftButtonFlag++;
-                onServe("chooseGesture,toLeft" + toLeftButtonFlag + "," + timeServerNow);
-                toLeftButton.setText("to L: "+toLeftButtonFlag);
-            }
-            else if (view == upLeftButton) {
-                upLeftButtonFlag++;
-                onServe("chooseGesture,upLeft" + upLeftButtonFlag + "," + timeServerNow);
-                upLeftButton.setText("up L: "+upLeftButtonFlag);
-            }
-            else if (view == downLeftButton) {
-                downLeftButtonFlag++;
-                onServe("chooseGesture,downLeft" + downLeftButtonFlag + "," + timeServerNow);
-                downLeftButton.setText("down L: " +downLeftButtonFlag);
-            }
-            if (view == toTopButton) {
-                toTopButtonFlag++;
-                onServe("chooseGesture,toTop" + toTopButtonFlag + "," + timeServerNow);
-                toTopButton.setText("to T: "+toTopButtonFlag);
-            }
-            else if (view == upTopButton) {
-                upTopButtonFlag++;
-                onServe("chooseGesture,upTop" + upTopButtonFlag + "," + timeServerNow);
-                upTopButton.setText("up T: "+upTopButtonFlag);
-            }
-            else if (view == downTopButton) {
-                downTopButtonFlag++;
-                onServe("chooseGesture,downTop" + downTopButtonFlag + "," + timeServerNow);
-                downTopButton.setText("down T: "+downTopButtonFlag);
-            }
-            if (view == toBottomButton) {
-                toBottomButtonFlag++;
-                onServe("chooseGesture,toBottom" + toBottomButtonFlag + "," + timeServerNow);
-                toBottomButton.setText("to B: " +toBottomButtonFlag);
-            }
-            else if (view == upBottomButton) {
-                upBottomButtonFlag++;
-                onServe("chooseGesture,upBottom" + upBottomButtonFlag + "," + timeServerNow);
-                upBottomButton.setText("up B: " +upBottomButtonFlag);
-            }
-            else if (view == downBottomButton) {downBottomButtonFlag++;
-                onServe("chooseGesture,downBottom" + downBottomButtonFlag + "," + timeServerNow);
-                downBottomButton.setText("down B: " +downBottomButtonFlag);
-            }
 
-        }
-    }
 
     public void onResume() {
         super.onResume();
@@ -544,32 +420,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
             else if(operator.equals("replyDisconnect")) {
                 if (!udid.equals(udidFromServer)) {
-                    toRightButtonFlag=0;
-                    upRightButtonFlag=0;
-                    downRightButtonFlag=0;
-                    toLeftButtonFlag=0;
-                    upLeftButtonFlag=0;
-                    downLeftButtonFlag=0;
-                    toTopButtonFlag=0;
-                    upTopButtonFlag=0;
-                    downTopButtonFlag=0;
-                    toBottomButtonFlag=0;
-                    upBottomButtonFlag=0;
-                    downBottomButtonFlag=0;
-
-                    toRightButton.setText("to R: "+toRightButtonFlag);
-                    upRightButton.setText("up R: " +upRightButtonFlag);
-                    downRightButton.setText("down R: " +downRightButtonFlag);
-                    toLeftButton.setText("to L: " +toLeftButtonFlag);
-                    upLeftButton.setText("up L: "+upLeftButtonFlag);
-                    downLeftButton.setText("down L: "+downLeftButtonFlag);
-                    toTopButton.setText("to T: " +toTopButtonFlag);
-                    upTopButton.setText("up T: "+upTopButtonFlag);
-                    downTopButton.setText("down T: "+downTopButtonFlag);
-                    toBottomButton.setText("to B: " +toBottomButtonFlag);
-                    upBottomButton.setText("up B: "+upBottomButtonFlag);
-                    downBottomButton.setText("down B: "+downBottomButtonFlag);
-
                     connectButtonFlag = 0;
                     connectButton.setText("CONNECT");
                     onServe("replyReplyDisconnect");
@@ -578,6 +428,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+
+                    onoffButtonFlag = 0;
+                    onoffButton.setText("ON");
+                    illumiLog = new ArrayList<Double>();
+                    timeDataLog = new ArrayList<Long>();
+                    step=0;
+                    state.setText("Not in service");
+
                     disconnect();
                 }else{
                     try {
@@ -591,77 +449,125 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+
+                    onoffButtonFlag = 0;
+                    onoffButton.setText("ON");
+                    illumiLog = new ArrayList<Double>();
+                    timeDataLog = new ArrayList<Long>();
+                    step=0;
+                    state.setText("Not in service");
+
                     disconnect();
                 }
             }
-            else if(operator.equals("replyChooseGesture")) {
-                if (!udid.equals(udidFromServer)) {
-                    String timeGesture = word[3];
-                    String gesture = word[4];
-                    testText.setText(gesture);
-                    if (gesture.contains("toRight")) {
-                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
-                        toRightButtonFlag = gestureTempFlag;
-                        onServe("replyReplyChooseGesture,toRight" + toRightButtonFlag + "," + timeGesture);
-                        toRightButton.setText("to R: " + toRightButtonFlag);
-                    } else if (gesture.contains("upRight")) {
-                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
-                        upRightButtonFlag = gestureTempFlag;
-                        onServe("replyReplyChooseGesture,upRight" + upRightButtonFlag + "," + timeGesture);
-                        upRightButton.setText("up R: " + upRightButtonFlag);
-                    } else if (gesture.contains("downRight")) {
-                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
-                        downRightButtonFlag = gestureTempFlag;
-                        onServe("replyReplyChooseGesture,downRight" + downRightButtonFlag + "," + timeGesture);
-                        downRightButton.setText("down R: " + downRightButtonFlag);
-                    } else if (gesture.contains("toLeft")) {
-                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
-                        toLeftButtonFlag = gestureTempFlag;
-                        onServe("replyReplyChooseGesture,toLeft" + toLeftButtonFlag + "," + timeGesture);
-                        toLeftButton.setText("to L: " + toLeftButtonFlag);
-                    } else if (gesture.contains("upLeft")) {
-                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
-                        upLeftButtonFlag = gestureTempFlag;
-                        onServe("replyReplyChooseGesture,upLeft" + upLeftButtonFlag + "," + timeGesture);
-                        upLeftButton.setText("up L: " + upLeftButtonFlag);
-                    } else if (gesture.contains("downLeft")) {
-                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
-                        downLeftButtonFlag = gestureTempFlag;
-                        onServe("replyReplyChooseGesture,downLeft" + downLeftButtonFlag + "," + timeGesture);
-                        downLeftButton.setText("down L: " + downLeftButtonFlag);
-                    } else if (gesture.contains("toTop")) {
-                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
-                        toTopButtonFlag = gestureTempFlag;
-                        onServe("replyReplyChooseGesture,toTop" + toTopButtonFlag + "," + timeGesture);
-                        toTopButton.setText("to T: " + toTopButtonFlag);
-                    } else if (gesture.contains("upTop")) {
-                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
-                        upTopButtonFlag = gestureTempFlag;
-                        onServe("replyReplyChooseGesture,upTop" + upTopButtonFlag + "," + timeGesture);
-                        upTopButton.setText("up T: " + upTopButtonFlag);
-                    } else if (gesture.contains("downTop")) {
-                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
-                        downTopButtonFlag = gestureTempFlag;
-                        onServe("replyReplyChooseGesture,downTop" + downTopButtonFlag + "," + timeGesture);
-                        downTopButton.setText("down T: " + downTopButtonFlag);
-                    } else if (gesture.contains("toBottom")) {
-                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
-                        toBottomButtonFlag = gestureTempFlag;
-                        onServe("replyReplyChooseGesture,toBottom" + toBottomButtonFlag + "," + timeGesture);
-                        toBottomButton.setText("to B: " + toBottomButtonFlag);
-                    } else if (gesture.contains("upBottom")) {
-                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
-                        upBottomButtonFlag = gestureTempFlag;
-                        onServe("replyReplyChooseGesture,upBottom" + upBottomButtonFlag + "," + timeGesture);
-                        upBottomButton.setText("up B: " + upBottomButtonFlag);
-                    } else if (gesture.contains("downBottom")) {
-                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
-                        downBottomButtonFlag = gestureTempFlag;
-                        onServe("replyReplyChooseGesture,downBottom" + downBottomButtonFlag + "," + timeGesture);
-                        downBottomButton.setText("down B: " + downBottomButtonFlag);
+
+            else if(operator.equals("replyStartOrder")){
+                String tempOrder = word[3];
+                if(!tempOrder.equals("endOrder")){
+                    requestOrder.setText(tempOrder);
+                    orderButtonFlag = 1;
+                    orderButton.setText("Next Order: "+orderButtonFlag);
+                }
+                else{
+                    if(word[1].equals(udid)){
+                        orderButtonFlag = 0;
+                        onServe("endOrder");
+                        orderButton.setText("Start Order");
                     }
                 }
             }
+            else if(operator.equals("replyNextOrder")){
+                String tempOrder = word[3];
+                if(!tempOrder.equals("endOrder")){
+                    int tempFlag = Integer.parseInt(word[4]);
+                    requestOrder.setText(tempOrder);
+                    orderButtonFlag = tempFlag;
+                    orderButton.setText("Next Order: "+orderButtonFlag);
+                }
+                else{
+                    if(word[1].equals(udid)){
+                        orderButtonFlag = 0;
+                        onServe("endOrder");
+                        orderButton.setText("Start Order");
+                    }
+                }
+            }
+            else if(operator.equals("replyEndOrder")){
+                requestOrder.setText("REQUEST");
+                orderButtonFlag = 0;
+                orderButton.setText("Start Order");
+            }
+
+
+
+//            else if(operator.equals("replyChooseGesture")) {
+//                if (!udid.equals(udidFromServer)) {
+//                    String timeGesture = word[3];
+//                    String gesture = word[4];
+//                    testText.setText(gesture);
+//                    if (gesture.contains("toRight")) {
+//                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
+//                        toRightButtonFlag = gestureTempFlag;
+//                        onServe("replyReplyChooseGesture,toRight" + toRightButtonFlag + "," + timeGesture);
+//                        toRightButton.setText("to R: " + toRightButtonFlag);
+//                    } else if (gesture.contains("upRight")) {
+//                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
+//                        upRightButtonFlag = gestureTempFlag;
+//                        onServe("replyReplyChooseGesture,upRight" + upRightButtonFlag + "," + timeGesture);
+//                        upRightButton.setText("up R: " + upRightButtonFlag);
+//                    } else if (gesture.contains("downRight")) {
+//                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
+//                        downRightButtonFlag = gestureTempFlag;
+//                        onServe("replyReplyChooseGesture,downRight" + downRightButtonFlag + "," + timeGesture);
+//                        downRightButton.setText("down R: " + downRightButtonFlag);
+//                    } else if (gesture.contains("toLeft")) {
+//                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
+//                        toLeftButtonFlag = gestureTempFlag;
+//                        onServe("replyReplyChooseGesture,toLeft" + toLeftButtonFlag + "," + timeGesture);
+//                        toLeftButton.setText("to L: " + toLeftButtonFlag);
+//                    } else if (gesture.contains("upLeft")) {
+//                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
+//                        upLeftButtonFlag = gestureTempFlag;
+//                        onServe("replyReplyChooseGesture,upLeft" + upLeftButtonFlag + "," + timeGesture);
+//                        upLeftButton.setText("up L: " + upLeftButtonFlag);
+//                    } else if (gesture.contains("downLeft")) {
+//                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
+//                        downLeftButtonFlag = gestureTempFlag;
+//                        onServe("replyReplyChooseGesture,downLeft" + downLeftButtonFlag + "," + timeGesture);
+//                        downLeftButton.setText("down L: " + downLeftButtonFlag);
+//                    } else if (gesture.contains("toTop")) {
+//                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
+//                        toTopButtonFlag = gestureTempFlag;
+//                        onServe("replyReplyChooseGesture,toTop" + toTopButtonFlag + "," + timeGesture);
+//                        toTopButton.setText("to T: " + toTopButtonFlag);
+//                    } else if (gesture.contains("upTop")) {
+//                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
+//                        upTopButtonFlag = gestureTempFlag;
+//                        onServe("replyReplyChooseGesture,upTop" + upTopButtonFlag + "," + timeGesture);
+//                        upTopButton.setText("up T: " + upTopButtonFlag);
+//                    } else if (gesture.contains("downTop")) {
+//                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
+//                        downTopButtonFlag = gestureTempFlag;
+//                        onServe("replyReplyChooseGesture,downTop" + downTopButtonFlag + "," + timeGesture);
+//                        downTopButton.setText("down T: " + downTopButtonFlag);
+//                    } else if (gesture.contains("toBottom")) {
+//                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
+//                        toBottomButtonFlag = gestureTempFlag;
+//                        onServe("replyReplyChooseGesture,toBottom" + toBottomButtonFlag + "," + timeGesture);
+//                        toBottomButton.setText("to B: " + toBottomButtonFlag);
+//                    } else if (gesture.contains("upBottom")) {
+//                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
+//                        upBottomButtonFlag = gestureTempFlag;
+//                        onServe("replyReplyChooseGesture,upBottom" + upBottomButtonFlag + "," + timeGesture);
+//                        upBottomButton.setText("up B: " + upBottomButtonFlag);
+//                    } else if (gesture.contains("downBottom")) {
+//                        int gestureTempFlag = Integer.parseInt(gesture.replaceAll("[^0-9]", ""));
+//                        downBottomButtonFlag = gestureTempFlag;
+//                        onServe("replyReplyChooseGesture,downBottom" + downBottomButtonFlag + "," + timeGesture);
+//                        downBottomButton.setText("down B: " + downBottomButtonFlag);
+//                    }
+//                }
+//            }
         }
     }
 
@@ -990,5 +896,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             nowTime += "" + calendar.get(Calendar.SECOND);
         }
         return nowTime;
+    }
+
+    public String getDeviceCharByUDID(String udid) {
+        if (udid.equals("a4c7b9190b6bd931")) {
+            //return "nexus7-2012-hmurakami";
+            return "A";
+        } else if (udid.equals("c58ce7becdb6013")) {
+            //return "nexus7-2012-tshimakawa";
+            return "B";
+        } else if (udid.equals("8e9e784548c0cb6a")) {
+            //return "nexus7-2013-haida";
+            return "C";
+        } else if (udid.equals("f7196b5116fe5f4d")) {
+            //return "nexus7-2013-amiyoshi";
+            return "D";
+        }
+        else{
+            return "X";
+        }
     }
 }

@@ -52,6 +52,36 @@
         android:layout_marginTop="60dp" />
 
     <TextView
+        android:id="@+id/requestOrder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="REQUEST"
+        android:textSize="50dp"
+        android:layout_marginTop="120dp"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:id="@+id/orderButton"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:text="Start Order"
+        android:textSize="20dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="50dp" />
+
+    <TextView
+        android:id="@+id/deviceChar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="X"
+        android:textSize="500dp"
+        android:layout_marginTop="130dp"
+        android:layout_centerHorizontal="true" />
+
+
+
+    <TextView
         android:id="@+id/deviceTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -85,8 +115,8 @@
 
     <Button
         android:id="@+id/connectButton"
-        android:layout_width="100dp"
-        android:layout_height="40dp"
+        android:layout_width="130dp"
+        android:layout_height="50dp"
         android:text="CONNECT"
         android:textSize="15dp"
         android:layout_alignTop="@+id/IPAddress"
@@ -102,135 +132,5 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="0dp" />
-
-    <TableLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="200dp"
-        android:layout_marginBottom="50dp">
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:id="@+id/toRButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="to R: 0"
-                android:textSize="20dp" />
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:id="@+id/upRButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="up R: 0"
-                android:textSize="20dp" />
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:id="@+id/downRButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="down R: 0"
-                android:textSize="20dp" />
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:id="@+id/toLButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="to L: 0"
-                android:textSize="20dp" />
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:id="@+id/upLButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="up L: 0"
-                android:textSize="20dp" />
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:id="@+id/downLButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="down L: 0"
-                android:textSize="20dp" />
-
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:id="@+id/toTButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="to T: 0"
-                android:textSize="20dp" />
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:id="@+id/upTButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="up T: 0"
-                android:textSize="20dp" />
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:id="@+id/downTButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="down T: 0"
-                android:textSize="20dp" />
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:id="@+id/toBButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="to B: 0"
-                android:textSize="20dp" />
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:id="@+id/upBButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="up B: 0"
-                android:textSize="20dp" />
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:id="@+id/downBButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="down B: 0"
-                android:textSize="20dp" />
-
-        </TableRow>
-
-    </TableLayout>
 
 </RelativeLayout>
