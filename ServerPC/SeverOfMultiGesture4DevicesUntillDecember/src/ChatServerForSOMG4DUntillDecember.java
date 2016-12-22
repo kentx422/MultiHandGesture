@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Scanner;
 
 //チャットサーバ
 public class ChatServerForSOMG4DUntillDecember {
@@ -18,14 +19,37 @@ public class ChatServerForSOMG4DUntillDecember {
 	static String nowTimeForPath;
 	static String path;
 
+	static int deviceNum;
+	static String kindExp;
 
+	
+	/*
+	 * 【注意】
+	 * 変数としてのstartOrder, endOrderと
+	 * 命令としてのstartOrder, endOrder（next）は
+	 * まったく別物
+	 * 
+	 * 変数の方は、照度変化がstartした順番，endした順番を指していて
+	 * 命令の方は，この順番実験をstartする，endする，（nextする，）を指定するためのもの
+	 */
+	
 	static ArrayList<String> orderList = new ArrayList<String>();
 	static ArrayList<String> devices = new ArrayList<String>();
+	
 	static ArrayList<String> requestOrder = new ArrayList<String>();
-	static ArrayList<String> answerOrder = new ArrayList<String>();
-
-	static ArrayList<String> tempAnswerOrder = new ArrayList<String>();
-	static ArrayList<String> tempTimeOfAnswerOrdr = new ArrayList<String>();
+	static ArrayList<String> answerStartOrder = new ArrayList<String>();
+	static ArrayList<String> timeOfAnswerStartOrder = new ArrayList<String>();
+	static ArrayList<String> lxOfAnswerStartOrder = new ArrayList<String>();
+	static ArrayList<String> answerEndOrder = new ArrayList<String>();
+	static ArrayList<String> timeOfAnswerEndOrder = new ArrayList<String>();
+	static ArrayList<String> lxOfAnswerEndOrder = new ArrayList<String>();
+	
+	static ArrayList<String> tempStartOrder = new ArrayList<String>();
+	static ArrayList<String> tempTimeOfStartOrder = new ArrayList<String>();
+	static ArrayList<String> tempLxOfStartOrder = new ArrayList<String>();
+	static ArrayList<String> tempEndOrder = new ArrayList<String>();
+	static ArrayList<String> tempTimeOfEndOrder = new ArrayList<String>();
+	static ArrayList<String> tempLxOfEndOrder = new ArrayList<String>();
 
 	//開始
 	public void start(int port) {
@@ -62,6 +86,45 @@ public class ChatServerForSOMG4DUntillDecember {
 		path = System.getProperty("user.dir")+"\\result\\"+nowTimeForPath;
 		makeDirectory(path);
 
+		int kindExpFlag =0;
+		int deviceNumFlag = 0; 
+		while(true){
+			System.out.print("Ordering>>1，Grouping>>2，Distance>>3");
+			Scanner scan = new Scanner(System.in);
+			int num = Integer.parseInt(scan.next());
+			
+			if(num==1){
+				System.out.println("Ordering");
+				kindExp = "Ordering";
+				while(deviceNumFlag==0){
+					System.out.print("How many devices?:");
+					num = Integer.parseInt(scan.next());
+					if(num >=2 && num<= 4){
+						System.out.println("Devices: "+num);
+						deviceNumFlag=1;
+						deviceNum = num;
+					}
+					else{
+						System.out.println("error: device num in ordering");
+						
+					}
+				}
+			}
+			else if(num==2){
+				System.out.println("Grouping");
+				kindExp = "Grouping";
+			}
+			else if(num==3){
+				System.out.println("Distance");
+				kindExp = "Distance";
+			}
+			else{
+				System.out.println("error: kind of experiment");
+				continue;
+			}
+			break;
+				
+		}
 		ChatServerForSOMG4DUntillDecember server=new ChatServerForSOMG4DUntillDecember();
 		server.start(8080);
 	}

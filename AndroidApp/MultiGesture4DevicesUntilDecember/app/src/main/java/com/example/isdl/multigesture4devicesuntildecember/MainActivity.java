@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView requestOrder;
     private Button orderButton;
     private TextView deviceChar;
+    private Button endButton;
 
     private int onoffButtonFlag;
     private int connectButtonFlag;
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     ArrayList<Long> nanotimeDataLog = new ArrayList<>();
 
     //version: 0.0 (Copy from MultiGestureUntilDecember) > 1.0 (Connect mobile devices)
-    private String versionNow = " 1.3 (Connect mobile devices)";
+    private String versionNow = " 1.4 (Connect mobile devices)";
 
     //IPアドレスの指定
     private static String IP = "172.20.11.175";
@@ -111,6 +112,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         requestOrder = (TextView) findViewById(R.id.requestOrder);
         orderButton = (Button) findViewById(R.id.orderButton);
         deviceChar = (TextView) findViewById(R.id.deviceChar);
+        endButton = (Button) findViewById(R.id.endButton);
+
 
         deviceChar.setText(getDeviceCharByUDID(udid));
 
@@ -123,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setTimeButton.setOnClickListener(new clickListener());
         connectButton.setOnClickListener(new clickListener());
         orderButton.setOnClickListener(new clickListener());
+        endButton.setOnClickListener(new clickListener());
 
         //閾値
         logThreshold = 2;
@@ -333,6 +337,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                     orderButtonFlag = 0;
                     orderButton.setText("Start Order");
+                    requestOrder.setText("REQUEST");
 
                     onServe("disconnect");
                 } else{
@@ -351,6 +356,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     System.out.println("ERROR: orderButtonFlag");
                 }
                 orderButtonFlag++;
+            }
+
+            else if (view == endButton){
+                orderButtonFlag = 0;
+                onServe("endOrder");
+                orderButton.setText("Start Order");
+                requestOrder.setText("REQUEST");
             }
         }
     }
@@ -473,6 +485,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         orderButtonFlag = 0;
                         onServe("endOrder");
                         orderButton.setText("Start Order");
+                        requestOrder.setText("REQUEST");
                     }
                 }
             }
@@ -489,6 +502,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         orderButtonFlag = 0;
                         onServe("endOrder");
                         orderButton.setText("Start Order");
+                        requestOrder.setText("REQUEST");
                     }
                 }
             }
